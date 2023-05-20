@@ -177,7 +177,6 @@ impl ArgValue {
         }
     }
 
-    #[doc(hidden)]
     pub fn get_bool(&self) -> Result<bool, anyhow::Error> {
         let v = self.match_type()?
             .parse::<bool>()
@@ -187,7 +186,6 @@ impl ArgValue {
         Ok(v)
     }
 
-    #[doc(hidden)]
     pub fn get_f32(&self) -> Result<f32, anyhow::Error> {
         let v = self.match_type()?
             .parse::<f32>()
@@ -197,7 +195,6 @@ impl ArgValue {
         Ok(v)
     }
 
-    #[doc(hidden)]
     pub fn get_i32(&self) -> Result<i32, anyhow::Error> {
         let v = self.match_type()?
             .parse::<i32>()
@@ -207,13 +204,11 @@ impl ArgValue {
         Ok(v)
     }
 
-    #[doc(hidden)]
     pub fn get_string(&self) -> Result<String, anyhow::Error> {
         let v = self.match_type()?;
         Ok(v)
     }
 
-    #[doc(hidden)]
     pub fn get_vec(&self) -> Result<Vec<String>, anyhow::Error> {
         match self {
             ArgValue::VEC(v) => Ok(v.clone()),
