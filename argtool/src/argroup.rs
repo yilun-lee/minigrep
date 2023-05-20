@@ -114,9 +114,8 @@ impl <'a> ArgGroup  {
 
     }
 
+
 }
-
-
 
 
 // private funcion
@@ -236,4 +235,52 @@ impl fmt::Display for ArgGroup {
 
         Ok(())
     }
+}
+
+
+
+
+
+
+
+
+
+/// for get value
+impl <'a> ArgGroup  {
+
+    pub fn get_bool(&self, keyname: &'a str) -> Result<bool, anyhow::Error> {
+        let value: &ArgValue = self.arg_map.get(keyname)
+            .ok_or_else(|| anyhow!("No value found for argument --{}", keyname))?;
+        let output = value.get_bool()?;
+        Ok(output)
+    }
+
+    pub fn get_f32(&self, keyname: &'a str) -> Result<f32, anyhow::Error> {
+        let value: &ArgValue = self.arg_map.get(keyname)
+            .ok_or_else(|| anyhow!("No value found for argument --{}", keyname))?;
+        let output = value.get_f32()?;
+        Ok(output)
+    }
+
+    pub fn get_i32(&self, keyname: &'a str) -> Result<i32, anyhow::Error> {
+        let value: &ArgValue = self.arg_map.get(keyname)
+            .ok_or_else(|| anyhow!("No value found for argument --{}", keyname))?;
+        let output = value.get_i32()?;
+        Ok(output)
+    }
+
+    pub fn get_string(&self, keyname: &'a str) -> Result<String, anyhow::Error> {
+        let value: &ArgValue = self.arg_map.get(keyname)
+            .ok_or_else(|| anyhow!("No value found for argument --{}", keyname))?;
+        let output = value.get_string()?;
+        Ok(output)
+    }
+
+    pub fn get_vec(&self, keyname: &'a str) -> Result<Vec<String>, anyhow::Error> {
+        let value: &ArgValue = self.arg_map.get(keyname)
+            .ok_or_else(|| anyhow!("No value found for argument --{}", keyname))?;
+        let output = value.get_vec()?;
+        Ok(output)
+    }
+
 }

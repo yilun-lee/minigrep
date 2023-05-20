@@ -45,14 +45,14 @@ mod tests {
         let mystr: String = String::from("/lib.rs -i this_is_file -e \"^[A-Z]+\" --e \";$\" -n 3 ");
         let my_cmd_iter = mystr.split(" ").into_iter();
 
-        let my_arg = my_arg_table.parse(my_cmd_iter).unwrap();
+        let my_arg: std::collections::HashMap<String, argtool::ArgValue> = my_arg_table.parse(my_cmd_iter).unwrap();
         println!("{:#?}", my_arg);
         println!("{}", my_arg_table);
 
         assert_eq!("this_is_file".to_string(), my_arg["file"].get_string().unwrap());
         assert_eq!(vec!["\"^[A-Z]+\"".to_string(), "\";$\"".to_string()], my_arg["expression"].get_vec().unwrap());
         assert_eq!(true, my_arg["ignorecase"].get_bool().unwrap());
-        assert_eq!(3, my_arg["line"].get_i32().unwrap());
+        assert_eq!(3, my_arg_table.get_i32("line").unwrap());
 
     }
 
