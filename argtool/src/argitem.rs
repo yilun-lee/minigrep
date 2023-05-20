@@ -1,15 +1,72 @@
+
 use std::fmt;
 
 use anyhow::anyhow;
 
+/// enum for argtype
+/// There are four argument type can be used. The default is [ArgType::BaseType]
 pub enum ArgType {
-    PositionalType,    // YOUR_PROGRAM  "One"
-    BaseType,     // YOUR_PROGRAM -a "One"
-    ListType,     // YOUR_PROGRAM -a "One" -a "Two"
-    FlagType,     // YOUR_PROGRAM -a
+    /// BaseType:
+    /// - The classic type 
+    /// - a flag following by a content
+    /// 
+    /// ```bash
+    /// ./program -a "One"
+    /// ```
+    BaseType,   
+    /// PositionalType: 
+    /// - Positional argument with no argument flag specified. 
+    /// - Parse to specific argument according to position
+    /// - Always required
+    /// 
+    /// ```bash
+    /// ./program "One"
+    /// ```
+    PositionalType,    
+
+    /// ListType:
+    /// - Like the BaseType, but can be specified multiple times. 
+    /// - Will be paresed as Vec<String>
+    /// 
+    /// ```bash
+    /// ./program -a "One" -a "Two"
+    /// ```
+
+    ListType,    
+    /// FlagType
+    /// - flag only argument. with no content
+    /// - return will always be bool, default is false, required is set to false
+    /// 
+    /// ```bash
+    /// ./program -a 
+    /// ```
+    FlagType,    
 }
 
+/// Display for argtype
+#[doc(hidden)]
+impl fmt::Display for ArgType {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            ArgType::BaseType => write!(f, "Base"),
+            ArgType::FlagType => write!(f, "Flag"),
+            ArgType::PositionalType => write!(f, "Positional"),
+            ArgType::ListType => write!(f, "List"),
+        }
+    }
+}
 
+/// struct for one argument
+/// An example
+/// ``` 
+/// use argtool::{ArgItem,ArgType};
+/// 
+/// let arg = ArgItem::new("line", "n")
+///     .set_detail("number of line")
+///     .set_default("-1", false)
+///     .set_argtype(ArgType::BaseType);
+///    
+/// ```
 
 pub struct ArgItem {
     pub name: String,
@@ -22,7 +79,11 @@ pub struct ArgItem {
     pub default: String,
 }
 
-
+/// The default value for argitem
+/// - arg_type -> [ArgType::BaseType]
+/// - detail   -> "No detail"
+/// - required -> true
+/// - default -> ""
 impl  Default for ArgItem {
     fn default() -> ArgItem {
         ArgItem {
@@ -39,8 +100,19 @@ impl  Default for ArgItem {
 }
 
 
+/// Display detail for an argument
+#[doc(hidden)]
+impl fmt::Display for ArgItem {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        writeln!(f, " --{}: {}", self.name, self.detail)?;
+        writeln!(f, "     type: {}, required: {}; default: {}, alias: {:?}", self.arg_type, self.default, self.required, self.alias)?;
+        Ok(())
+    }
+}
+
+
 impl <'a> ArgItem {
-    
+    /// create a new argument
     pub fn new(name: &'a str, alias: &'a str) -> ArgItem  {
         ArgItem{
             name: name.to_string(),
@@ -86,6 +158,7 @@ pub enum ArgValue {
     VEC(Vec<String>)
 }
 
+#[doc(hidden)]
 impl fmt::Display for ArgValue {
     // This trait requires `fmt` with this exact signature.
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {

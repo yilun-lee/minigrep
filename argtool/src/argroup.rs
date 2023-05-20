@@ -1,5 +1,5 @@
 
-use std::vec;
+use std::{vec, fmt};
 use std::collections::HashMap;
 use crate::argitem::{ArgItem,ArgType,ArgValue};
 
@@ -13,7 +13,7 @@ pub struct ArgGroup {
     base_arg: HashMap<String, ArgItem>,
     alias_map: HashMap<String, String>,
 
-    arg_map: HashMap<String, ArgValue>,
+    pub arg_map: HashMap<String, ArgValue>,
 }
 
 impl <'a> Default for ArgGroup {
@@ -209,6 +209,31 @@ impl <'a> ArgGroup  {
                 },
             };
         };
+        Ok(())
+    }
+}
+
+
+#[doc(hidden)]
+impl fmt::Display for ArgGroup {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        writeln!(f, "{}", self.name)?;
+        writeln!(f, "{}", self.discription)?;
+        writeln!(f, "")?;
+
+        writeln!(f, "Positional arg:")?;
+        for argitme in &self.pos_arg{
+            writeln!(f, "{}", argitme)?;
+        }
+
+        writeln!(f, "Other argument:")?;
+        for (_, argitme) in &self.base_arg{
+            writeln!(f, "{}", argitme)?;
+        }
+
+        writeln!(f, "Currunt  argument:")?;
+        writeln!(f, "{:#?}", &self.arg_map)?;
+
         Ok(())
     }
 }
