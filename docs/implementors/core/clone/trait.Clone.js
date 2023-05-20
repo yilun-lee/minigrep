@@ -1,0 +1,4 @@
+(function() {var implementors = {};
+implementors["anyhow"] = [{"text":"impl&lt;'a&gt; <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html\" title=\"trait core::clone::Clone\">Clone</a> for <a class=\"struct\" href=\"anyhow/struct.Chain.html\" title=\"struct anyhow::Chain\">Chain</a>&lt;'a&gt;","synthetic":false,"types":["anyhow::Chain"]}];
+implementors["argtool"] = [{"text":"impl <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/clone/trait.Clone.html\" title=\"trait core::clone::Clone\">Clone</a> for <a class=\"enum\" href=\"argtool/argitem/enum.ArgValue.html\" title=\"enum argtool::argitem::ArgValue\">ArgValue</a>","synthetic":false,"types":["argtool::argitem::ArgValue"]}];
+if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()
