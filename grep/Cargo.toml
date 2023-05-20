@@ -1,3 +1,5 @@
+cargo-features = ["edition2021"]
+
 [package]
 name = "grep"
 version = "0.1.0"
@@ -8,3 +10,5 @@ edition = "2018"
 [dependencies]
 argtool = { path = "../argtool" }
 anyhow = "1.0.71"
+regex = "1"
+aho-corasick = "0.7.20"
