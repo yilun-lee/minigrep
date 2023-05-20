@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["ArgType","enum for argtype There are four argument type can be used. The default is [ArgType::BaseType]"],["ArgValue",""]],"struct":[["ArgItem","struct for one argument An example"]]});
