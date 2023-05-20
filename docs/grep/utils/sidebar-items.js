@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["read_file","read file and retuen buffer reader"]],"struct":[["FileReader",""]]});
+initSidebarItems({"enum":[["MyErrors",""]],"fn":[["main_loop",""],["read_file","read file and retuen buffer reader"]],"struct":[["FileReader",""]]});
