@@ -1,11 +1,15 @@
 
-use std::io::{self, BufRead, BufReader};
+use std::io::{self, BufRead, BufReader, Lines};
 use std::fs::File;
 use std::collections::LinkedList;
 use anyhow::anyhow;
+use thiserror;
 
-#[derive(Clone, Debug, PartialEq)]
-enum MyErrors {
+/// My own error
+/// 
+#[derive(thiserror::Error, Clone, Debug, PartialEq)]
+pub enum MyErrors {
+    /// 
     EndOfFile
 }
 
@@ -17,34 +21,45 @@ impl std::fmt::Display for MyErrors {
     }
 }
 
+type LineBuf = Lines<BufReader<File>>;
 /// read file and retuen buffer reader
-pub fn read_file(file_path: String) -> io::Result<BufReader<File>> {
+pub fn read_file(file_path: String) -> io::Result<LineBuf> {
     let f: File = File::open(file_path)?;
     let cursor = BufReader::new(f);
-    Ok(cursor)
+    Ok(cursor.lines())
 }
 
 
 
 pub struct  FileReader {
-    buf_reader: BufReader<File>,
-    buffer: LinkedList<String>,
-    line: String,
-
-    cc: i32,
-    buffer_size: i32,
+    pub buf_reader: LineBuf,
+    pub buffer: LinkedList<String>,
+    pub line: String,
+    
+    /// line number index
+    cc: i32, 
+    /// buffer size, the size to show before matched line
+    ahead_size: i32,
+    /// the size to show after matched line
+    /// pub because it will be used in main
+    pub behind_size: i32,
 }
 
 impl <'a>  FileReader {
-    pub fn new(file_path: String, buffer_size: i32) -> Result<FileReader, anyhow::Error> {
+    /// create a new FileReader instance
+    /// * `file_path` - File path
+    /// * `ahead_size` - buffer size ahead 
+    /// * `behind_size` -  size after match line 
+    pub fn new(file_path: String, ahead_size: i32, behind_size: i32) -> Result<FileReader, anyhow::Error> {
 
-        let mut file_reader = FileReader {
+        let file_reader = FileReader {
             buf_reader: read_file(file_path)?,
             buffer: LinkedList::new(),
             line: String::new(),
 
             cc: 0,
-            buffer_size: buffer_size,
+            ahead_size: ahead_size,
+            behind_size: behind_size
         };
         Ok(file_reader)
     }
@@ -54,69 +69,30 @@ impl <'a>  FileReader {
     /// (ref link)`<http://lukaskalbertodt.github.io/2018/08/03/solving-the-generalized-streaming-iterator-problem-without-gats.html#a-better-iolines>`
     pub fn next (&'a mut self) -> Result<&'a str, anyhow::Error>{
 
-        // handle different error https://users.rust-lang.org/t/kind-method-not-found-when-using-anyhow-and-thiserror/81560
-        if let 0 = self.buf_reader.read_line(&mut self.line)?{
-            return Err(anyhow!(MyErrors::EndOfFile))
+        // push the previous line
+        if self.cc > 0 {
+            self.buffer.push_back(self.line.clone());
+        };
+
+        self.cc += 1;
+        if self.cc > self.ahead_size + 1 {
+            self.buffer.pop_front();} 
+
+        self.line = match self.buf_reader.next() {
+            Some(v) => v?,
+            None => return Err(anyhow!(MyErrors::EndOfFile)),
         };
     
-        self.buffer.push_back(self.line.clone());
-        self.cc += 1;
-        if self.cc > self.buffer_size {
-            self.buffer.pop_front();} // empyt return None, so it is Ok
-
         Ok(&self.line)
     }
 
-    fn print_buffer(&self) {
+    /// print all ahead buffer
+    pub fn print_buffer(&self) {
         for i in &self.buffer {
             println!("{}", i);
         };
     }
 }
-
-
-fn main_loop(mut file_reader: FileReader, a_num: i32, b_num: i32) -> Result<(), anyhow::Error> {
-
-    let mut whithin_flag = false;
-    let mut line_after_match = 0;
-
-    loop {
-        let line: &str = file_reader.next()?;
-
-        if line.contains("AA") {
-            if ! whithin_flag{
-                for i in &file_reader.buffer {
-                    println!("{}", i);
-                };
-                whithin_flag = true;
-            
-            } else {
-
-                println!("{}", line);
-            }
-
-            line_after_match = 0;
-
-        }else {
-
-            line_after_match += 1;
-            
-            if line_after_match > b_num {
-                whithin_flag = false
-            
-            } else {
-                println!("{}", line);
-            }
-        }
-
-
-
-    }
-}
-
-
-
-
 
 
 

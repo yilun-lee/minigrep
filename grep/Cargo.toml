@@ -11,4 +11,4 @@ edition = "2018"
 argtool = { path = "../argtool" }
 anyhow = "1.0.71"
 regex = "1"
-aho-corasick = "0.7.20"
+thiserror = "1.0.40"

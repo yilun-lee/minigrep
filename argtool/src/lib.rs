@@ -35,7 +35,8 @@
 //!     .set_default("false", false)
 //!     .set_argtype(ArgType::FlagType)
 //!     ).unwrap();
-//!
+//! 
+//! // you can print it as help page
 //! println!("{}", my_arg_table);
 //! 
 //! // define mock input
