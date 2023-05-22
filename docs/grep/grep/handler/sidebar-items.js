@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["LineExtractor","LineMatcher","LineReplacer"],"trait":["MatchLine","ReplaceLine"]};

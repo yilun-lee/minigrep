@@ -1,1 +1,1 @@
-initSidebarItems({"mod":[["argitem",""],["argroup",""]]});
+window.SIDEBAR_ITEMS = {"mod":["argitem","argroup"]};

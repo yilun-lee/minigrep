@@ -1,3 +1,3 @@
-(function() {var implementors = {};
-implementors["grep"] = [{"text":"impl <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/core/marker/trait.StructuralPartialEq.html\" title=\"trait core::marker::StructuralPartialEq\">StructuralPartialEq</a> for <a class=\"enum\" href=\"grep/utils/enum.MyErrors.html\" title=\"enum grep::utils::MyErrors\">MyErrors</a>","synthetic":false,"types":["grep::utils::MyErrors"]}];
-if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()
+(function() {var implementors = {
+"grep":[["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.69.0/core/marker/trait.StructuralPartialEq.html\" title=\"trait core::marker::StructuralPartialEq\">StructuralPartialEq</a> for <a class=\"enum\" href=\"grep/utils/enum.MyErrors.html\" title=\"enum grep::utils::MyErrors\">MyErrors</a>"]]
+};if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

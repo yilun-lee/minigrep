@@ -1,4 +1,5 @@
-var N = null;var sourcesIndex = {};
-sourcesIndex["argtool"] = {"name":"","files":["argitem.rs","argroup.rs","lib.rs"]};
-sourcesIndex["grep"] = {"name":"","files":["main.rs","test.rs","utils.rs"]};
+var sourcesIndex = JSON.parse('{\
+"argtool":["",[],["argitem.rs","argroup.rs","lib.rs"]],\
+"grep":["",[["grep",[],["handler.rs","matcher.rs","str_const.rs","test.rs"]]],["grep.rs","main.rs","test.rs","utils.rs"]]\
+}');
 createSourceSidebar();

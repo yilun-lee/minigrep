@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["MyErrors",""]],"fn":[["main_loop",""],["read_file","read file and retuen buffer reader"]],"struct":[["FileReader",""]]});
+window.SIDEBAR_ITEMS = {"enum":["MyErrors"],"fn":["read_file"],"struct":["FileReader"],"type":["LineBuf"]};

@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["main",""]],"mod":[["test",""],["utils",""]]});
+window.SIDEBAR_ITEMS = {"fn":["main","main_loop"],"mod":["grep","test","utils"]};
