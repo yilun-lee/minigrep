@@ -4,10 +4,12 @@
 
 #[cfg(test)]
 mod tests {
+    // from lib
     use crate::grep::matcher::RegexMatcher;
     use crate::utils::{read_file, FileReader};
     use crate::main_loop;
     use crate::grep::handler::{LineReplacer, LineExtractor, LineMatcher};
+    use crate::argparse::MiniGrepArg;
 
     #[test]
     fn test_read_line() {
@@ -65,6 +67,19 @@ mod tests {
         let file_reader = FileReader::new(file_path, 2, 2).unwrap();
 
         main_loop(file_reader, my_line_replacer).unwrap();
+
+    }
+
+
+    #[test]
+    fn test_argparse() {
+
+        let mystr: String = String::from(
+            "minigrep -i \"[A-Z]+:[0-9\\.]+$\" --A 3 -B 4 /Users/sox/CODE/minigrep/example/test.txt");
+            let my_cmd_iter = mystr.split(" ").map(|a| a.to_owned()).into_iter();
+        
+        let my_arg = MiniGrepArg::new(my_cmd_iter).unwrap();
+        println!("{:#?}",my_arg);
 
     }
 

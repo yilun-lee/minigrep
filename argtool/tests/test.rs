@@ -1,6 +1,4 @@
 
-use argtool;
-
 
 #[cfg(test)]
 mod tests {
@@ -43,7 +41,7 @@ mod tests {
         let mut my_arg_table = get_my_argroup();
 
         let mystr: String = String::from("/lib.rs -i this_is_file -e \"^[A-Z]+\" --e \";$\" -n 3 ");
-        let my_cmd_iter = mystr.split(" ").into_iter();
+        let my_cmd_iter = mystr.split(" ").map(|a| a.to_owned()).into_iter();
 
         let my_arg: std::collections::HashMap<String, argtool::ArgValue> = my_arg_table.parse(my_cmd_iter).unwrap();
         println!("{:#?}", my_arg);
@@ -62,7 +60,7 @@ mod tests {
         let mut my_arg_table = get_my_argroup();
 
         let mystr: String = String::from("/lib.rs -i this_is_file -e \"^[A-Z]+\" -e \";$\" -n 3 -t UNDEFINE");
-        let my_cmd_iter = mystr.split(" ").into_iter();
+        let my_cmd_iter = mystr.split(" ").map(|a| a.to_owned()).into_iter();
 
         let my_arg = my_arg_table.parse(my_cmd_iter).unwrap();
         println!("{:#?}", my_arg);
@@ -76,7 +74,7 @@ mod tests {
         let mut my_arg_table = get_my_argroup();
 
         let mystr: String = String::from("/lib.rs -i -e \"^[A-Z]+\" -e \";$\" -n 3");
-        let my_cmd_iter = mystr.split(" ").into_iter();
+        let my_cmd_iter = mystr.split(" ").map(|a| a.to_owned()).into_iter();
 
         let my_arg = my_arg_table.parse(my_cmd_iter).unwrap();
         println!("{:#?}", my_arg);
@@ -89,7 +87,7 @@ mod tests {
         let mut my_arg_table = get_my_argroup();
 
         let mystr: String = String::from("/lib.rs -e \"^[A-Z]+\" -e \";$\" this_is_file");
-        let my_cmd_iter = mystr.split(" ").into_iter();
+        let my_cmd_iter = mystr.split(" ").map(|a| a.to_owned()).into_iter();
 
         let my_arg = my_arg_table.parse(my_cmd_iter).unwrap();
         println!("{:#?}", my_arg);
@@ -106,7 +104,7 @@ mod tests {
         let mut my_arg_table = get_my_argroup();
 
         let mystr: String = String::from("/lib.rs -e -i this_is_file ");
-        let my_cmd_iter = mystr.split(" ").into_iter();
+        let my_cmd_iter = mystr.split(" ").map(|a| a.to_owned()).into_iter();
 
         let my_arg = my_arg_table.parse(my_cmd_iter).unwrap();
         println!("{:#?}", my_arg);

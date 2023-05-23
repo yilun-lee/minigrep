@@ -1,9 +1,6 @@
 
-use std::borrow::Cow;
-
-
+use super::matcher::RegexMatcher;
 use super::matcher::PatternMatch;
-use super::str_const::EMPTY_STR;
 /// trait for match a line and return bool, for match only
 /// May be more efficinet
 /// not used for now
@@ -22,12 +19,12 @@ pub struct LineMatcher  {
     pub matcher: Box<dyn PatternMatch>,
 }
 
+/// did not clone line inside, but return an empty String
 impl <'a> ReplaceLine for LineMatcher {
     fn replace_line(&self, line: &str, ) -> (bool, String) {
         return (self.matcher.contain(line), line.to_owned() )
     }
 }
-
 
 
 /// for  extract mod
@@ -50,6 +47,7 @@ pub struct LineReplacer <'a>{
     pub substitute: &'a str,
     pub times: usize,
 }
+
 
 impl <'a> ReplaceLine for LineReplacer <'a>{
     fn replace_line(&self, line: &str, ) -> (bool, String) {

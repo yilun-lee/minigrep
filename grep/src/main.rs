@@ -1,62 +1,56 @@
-
-pub mod utils;
-pub mod grep;
-mod test;
-
-use grep::handler::ReplaceLine;
-
-use utils::{FileReader, MyErrors};
-
-/// main loop for grep a file
-/// * file_reader: [FileReader](FileReader) object, read file by line.
-/// * line_handler: struct with [ReplaceLine](ReplaceLine) trait, match pattern and handle the match reuslt.
-fn main_loop<'a>(
-        mut file_reader: FileReader, 
-        line_handler: impl ReplaceLine,
-        ) -> Result<(), anyhow::Error> {
-    
-    let behind_size = file_reader.behind_size.clone();
-
-    let mut whithin_flag = false;
-    let mut line_after_match = 0;
-
-    loop {
-
-        // handle different error https://users.rust-lang.org/t/kind-method-not-found-when-using-anyhow-and-thiserror/81560
-        let line: &str = match file_reader.next() {
-            Ok(v) => v,
-            Err(err) if err.downcast_ref() == Some(&MyErrors::EndOfFile) 
-                => return Ok(()),
-            Err(err) => return Err(err),
-        };
-        
-        let (match_flag, matched_line) = line_handler.replace_line(line);
-        if match_flag {
-            if ! whithin_flag{
-                file_reader.print_buffer();
-                whithin_flag = true;
-            } 
-            println!("{}", matched_line);
-            line_after_match = 0;
-
-        } else {
-
-            line_after_match += 1;
-            
-            if line_after_match > behind_size {
-                whithin_flag = false
-            
-            } else if whithin_flag {
-                println!("{}", matched_line);
-            }
-        }
-
-    }
-}
+//! test code 
+//! 
+//! ```bash
+//! /Users/sox/CODE/minigrep/target/debug/grep -i "AA" -A 2 /Users/sox/CODE/minigrep/example/test.txt
+//! ```
 
 
 
+// argparse is only used here 
+mod argparse;
 
+
+// use lib here
+// main should access other module through lib
+use grep::main_loop;
+use grep::utils::FileReader;
+use argparse::MiniGrepArg;
+use grep::grep::matcher::RegexMatcher;
+use grep::grep::handler::LineMatcher;
+
+
+use std::env;
+
+
+/// main function for arg
 fn main(){
-    println!("Hello World");
+    // parse arg
+    let my_arg = match MiniGrepArg::new(env::args()) {
+        Ok(v) => v,
+        Err(v) => panic!("{}:\n {}", "Argument parse error!",v)
+    };
+
+    // read file
+    let file_reader = match FileReader::new(my_arg.file_path, my_arg.ahead_size, my_arg.behind_size) {
+        Ok(v) => v,
+        Err(v) => panic!("{}:\n {}", "Read file error!",v)
+    };
+
+    // create grep
+    let my_re = match RegexMatcher::new(&my_arg.expression, my_arg.ignorecase){
+        Ok(v) => v,
+        Err(v) => panic!("{}:\n {}", "Regex create error!",v)
+    };
+    let my_line_replacer = LineMatcher {
+        matcher: Box::new(my_re),
+    };
+
+    // run
+    match main_loop(file_reader, my_line_replacer){
+        Ok(v) => v,
+        Err(v) => panic!("{}:\n {}", "Match error!",v)
+    };
+
 }
+
+

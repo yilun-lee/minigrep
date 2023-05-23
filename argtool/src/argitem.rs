@@ -104,8 +104,15 @@ impl  Default for ArgItem {
 #[doc(hidden)]
 impl fmt::Display for ArgItem {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        writeln!(f, " --{}: {}", self.name, self.detail)?;
-        writeln!(f, "     type: {}, required: {}; default: {}, alias: {:?}", self.arg_type, self.default, self.required, self.alias)?;
+        if let ArgType::PositionalType = self.arg_type{
+            writeln!(f, " <{}>: {}", self.name, self.detail)?;
+            writeln!(f, "     type: {}, required: {}", 
+                self.arg_type, self.required)?;
+        }else{
+            writeln!(f, " --{}: {}", self.name, self.detail)?;
+            writeln!(f, "     type: {}, required: {}; default: {}, alias: {:?}", 
+                self.arg_type, self.required, self.default, self.alias)?;
+        }
         Ok(())
     }
 }

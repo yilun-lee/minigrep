@@ -4,7 +4,6 @@ use std::borrow::Cow;
 
 use regex::Regex;
 use anyhow::Result;
-use super::str_const::EMPTY_STR;
 
 /// trait for different pattern match method
 pub trait PatternMatch {
@@ -15,7 +14,6 @@ pub trait PatternMatch {
     /// Replace the pattern
     fn replace(&self, line: &str, substitute: &str, times: usize) -> (bool, String);
 }
-
 
 
 /// match with regex
@@ -61,9 +59,8 @@ impl <'a> PatternMatch for RegexMatcher {
     fn replace(&self, line: &str, substitute: &str, times: usize) -> (bool, String){
         let replaced_line =self.re.replacen(line, times, substitute);
         match replaced_line {
-            Cow::Borrowed(v) => return ( false, line.to_owned()),
+            Cow::Borrowed(_) => return ( false, line.to_owned()),
             Cow::Owned(v) => return ( true, v),
         }
     }
 }
-

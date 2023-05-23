@@ -32,14 +32,15 @@ pub fn read_file(file_path: String) -> io::Result<LineBuf> {
 
 
 pub struct  FileReader {
+    pub file_path: String,
     pub buf_reader: LineBuf,
     pub buffer: LinkedList<String>,
     pub line: String,
     
     /// line number index
-    cc: i32, 
+    pub cc: i32, 
     /// buffer size, the size to show before matched line
-    ahead_size: i32,
+    pub ahead_size: i32,
     /// the size to show after matched line
     /// pub because it will be used in main
     pub behind_size: i32,
@@ -53,6 +54,7 @@ impl <'a>  FileReader {
     pub fn new(file_path: String, ahead_size: i32, behind_size: i32) -> Result<FileReader, anyhow::Error> {
 
         let file_reader = FileReader {
+            file_path: file_path.clone(),
             buf_reader: read_file(file_path)?,
             buffer: LinkedList::new(),
             line: String::new(),
@@ -87,7 +89,7 @@ impl <'a>  FileReader {
     }
 
     /// print all ahead buffer
-    pub fn print_buffer(&self) {
+    pub fn print_buffer(&self,) {
         for i in &self.buffer {
             println!("{}", i);
         };
@@ -95,5 +97,29 @@ impl <'a>  FileReader {
 }
 
 
+
+/// for weather print value with num and file_name
+struct LinePrinter {
+    line_num_flag: bool, 
+    file_path_flag: bool, 
+}
+
+/// print value
+impl LinePrinter {
+    pub fn line_printer(&self, 
+        line: &str, num: usize, file_path: &str, ) {
+
+        if self.file_path_flag {
+            print!("{}:", file_path)
+        }
+        
+        if self.line_num_flag {
+            print!("{}:", num)
+        }
+
+        println!("{}", line)
+
+    }
+}
 
 

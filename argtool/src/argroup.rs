@@ -16,7 +16,7 @@ pub struct ArgGroup {
     pub arg_map: HashMap<String, ArgValue>,
 }
 
-impl <'a> Default for ArgGroup {
+impl Default for ArgGroup {
     fn default() -> ArgGroup {
         ArgGroup {
             name: "".to_string(),
@@ -32,7 +32,7 @@ impl <'a> Default for ArgGroup {
 }
 
 // public function
-impl <'a> ArgGroup  {
+impl ArgGroup  {
 
     pub fn new(name: String, discription: String) -> ArgGroup {
         ArgGroup {
@@ -67,7 +67,7 @@ impl <'a> ArgGroup  {
 
     }
 
-    pub fn parse(&mut self, mut sys_args: impl Iterator<Item = &'a str>,  
+    pub fn parse(&mut self, mut sys_args: impl Iterator<Item = String>,  
         ) -> Result<HashMap<String,ArgValue>,anyhow::Error>{
         
         // remove first argument, should be the binary or script path
@@ -119,7 +119,7 @@ impl <'a> ArgGroup  {
 
 
 // private funcion
-impl <'a> ArgGroup  {
+impl ArgGroup  {
 
     fn add_non_pos_arg(&mut self, argitem: ArgItem) {
         for i in &argitem.alias {
@@ -138,7 +138,7 @@ impl <'a> ArgGroup  {
     }
 
     fn match_arg(&mut self, keyname: String, 
-        sys_args: &mut impl Iterator<Item = &'a str>) -> Result<(),anyhow::Error>{
+        sys_args: &mut impl Iterator<Item = String>) -> Result<(),anyhow::Error>{
         
         
         let arg_item = match self.base_arg.get(&keyname) {
@@ -149,13 +149,13 @@ impl <'a> ArgGroup  {
         match arg_item.arg_type {
             ArgType::BaseType => {
                 // get next 
-                let arg_val: &str = self.get_arg_content(sys_args, keyname.clone())?;
+                let arg_val: String = self.get_arg_content(sys_args, keyname.clone())?;
                 self.arg_map.insert(keyname.to_string(), ArgValue::STR(arg_val.to_string()));
             },
 
             ArgType::ListType => {
                 // get next 
-                let arg_val: &str  = self.get_arg_content(sys_args, keyname.clone())?;
+                let arg_val: String  = self.get_arg_content(sys_args, keyname.clone())?;
                 // insert to vec
                 let v: &mut ArgValue = self.arg_map.entry(keyname.to_string())
                     .or_insert(ArgValue::VEC(vec![]));
@@ -180,8 +180,8 @@ impl <'a> ArgGroup  {
 
     }
 
-    fn get_arg_content(&self, sys_args: &mut impl Iterator<Item = &'a str>, 
-        keyname: String,) -> Result<&'a str,anyhow::Error> {
+    fn get_arg_content(&self, sys_args: &mut impl Iterator<Item = String>, 
+        keyname: String,) -> Result<String,anyhow::Error> {
         let arg = sys_args.next()
             .ok_or_else(|| anyhow!("No argument found for --{}", keyname))?;
         if &arg[..1] == "-"{
