@@ -302,7 +302,7 @@
     <span class="kw">pub </span>arg_map: HashMap&lt;String, ArgValue&gt;,
 }
 
-<span class="kw">impl </span>&lt;<span class="lifetime">&#39;a</span>&gt; Default <span class="kw">for </span>ArgGroup {
+<span class="kw">impl </span>Default <span class="kw">for </span>ArgGroup {
     <span class="kw">fn </span>default() -&gt; ArgGroup {
         ArgGroup {
             name: <span class="string">&quot;&quot;</span>.to_string(),
@@ -318,7 +318,7 @@
 }
 
 <span class="comment">// public function
-</span><span class="kw">impl </span>&lt;<span class="lifetime">&#39;a</span>&gt; ArgGroup  {
+</span><span class="kw">impl </span>ArgGroup  {
 
     <span class="kw">pub fn </span>new(name: String, discription: String) -&gt; ArgGroup {
         ArgGroup {
@@ -353,7 +353,7 @@
 
     }
 
-    <span class="kw">pub fn </span>parse(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw-2">mut </span>sys_args: <span class="kw">impl </span>Iterator&lt;Item = <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str&gt;,  
+    <span class="kw">pub fn </span>parse(<span class="kw-2">&amp;mut </span><span class="self">self</span>, <span class="kw-2">mut </span>sys_args: <span class="kw">impl </span>Iterator&lt;Item = String&gt;,  
         ) -&gt; <span class="prelude-ty">Result</span>&lt;HashMap&lt;String,ArgValue&gt;,anyhow::Error&gt;{
         
         <span class="comment">// remove first argument, should be the binary or script path
@@ -405,7 +405,7 @@
 
 
 <span class="comment">// private funcion
-</span><span class="kw">impl </span>&lt;<span class="lifetime">&#39;a</span>&gt; ArgGroup  {
+</span><span class="kw">impl </span>ArgGroup  {
 
     <span class="kw">fn </span>add_non_pos_arg(<span class="kw-2">&amp;mut </span><span class="self">self</span>, argitem: ArgItem) {
         <span class="kw">for </span>i <span class="kw">in </span><span class="kw-2">&amp;</span>argitem.alias {
@@ -424,7 +424,7 @@
     }
 
     <span class="kw">fn </span>match_arg(<span class="kw-2">&amp;mut </span><span class="self">self</span>, keyname: String, 
-        sys_args: <span class="kw-2">&amp;mut </span><span class="kw">impl </span>Iterator&lt;Item = <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(),anyhow::Error&gt;{
+        sys_args: <span class="kw-2">&amp;mut </span><span class="kw">impl </span>Iterator&lt;Item = String&gt;) -&gt; <span class="prelude-ty">Result</span>&lt;(),anyhow::Error&gt;{
         
         
         <span class="kw">let </span>arg_item = <span class="kw">match </span><span class="self">self</span>.base_arg.get(<span class="kw-2">&amp;</span>keyname) {
@@ -435,13 +435,13 @@
         <span class="kw">match </span>arg_item.arg_type {
             ArgType::BaseType =&gt; {
                 <span class="comment">// get next 
-                </span><span class="kw">let </span>arg_val: <span class="kw-2">&amp;</span>str = <span class="self">self</span>.get_arg_content(sys_args, keyname.clone())<span class="question-mark">?</span>;
+                </span><span class="kw">let </span>arg_val: String = <span class="self">self</span>.get_arg_content(sys_args, keyname.clone())<span class="question-mark">?</span>;
                 <span class="self">self</span>.arg_map.insert(keyname.to_string(), ArgValue::STR(arg_val.to_string()));
             },
 
             ArgType::ListType =&gt; {
                 <span class="comment">// get next 
-                </span><span class="kw">let </span>arg_val: <span class="kw-2">&amp;</span>str  = <span class="self">self</span>.get_arg_content(sys_args, keyname.clone())<span class="question-mark">?</span>;
+                </span><span class="kw">let </span>arg_val: String  = <span class="self">self</span>.get_arg_content(sys_args, keyname.clone())<span class="question-mark">?</span>;
                 <span class="comment">// insert to vec
                 </span><span class="kw">let </span>v: <span class="kw-2">&amp;mut </span>ArgValue = <span class="self">self</span>.arg_map.entry(keyname.to_string())
                     .or_insert(ArgValue::VEC(<span class="macro">vec!</span>[]));
@@ -466,8 +466,8 @@
 
     }
 
-    <span class="kw">fn </span>get_arg_content(<span class="kw-2">&amp;</span><span class="self">self</span>, sys_args: <span class="kw-2">&amp;mut </span><span class="kw">impl </span>Iterator&lt;Item = <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str&gt;, 
-        keyname: String,) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,anyhow::Error&gt; {
+    <span class="kw">fn </span>get_arg_content(<span class="kw-2">&amp;</span><span class="self">self</span>, sys_args: <span class="kw-2">&amp;mut </span><span class="kw">impl </span>Iterator&lt;Item = String&gt;, 
+        keyname: String,) -&gt; <span class="prelude-ty">Result</span>&lt;String,anyhow::Error&gt; {
         <span class="kw">let </span>arg = sys_args.next()
             .ok_or_else(|| <span class="macro">anyhow!</span>(<span class="string">&quot;No argument found for --{}&quot;</span>, keyname))<span class="question-mark">?</span>;
         <span class="kw">if </span><span class="kw-2">&amp;</span>arg[..<span class="number">1</span>] == <span class="string">&quot;-&quot;</span>{

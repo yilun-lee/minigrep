@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":["handler","matcher","str_const","test"]};
+window.SIDEBAR_ITEMS = {"mod":["handler","matcher"]};

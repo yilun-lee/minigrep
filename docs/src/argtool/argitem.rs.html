@@ -227,6 +227,13 @@
 <a href="#227" id="227">227</a>
 <a href="#228" id="228">228</a>
 <a href="#229" id="229">229</a>
+<a href="#230" id="230">230</a>
+<a href="#231" id="231">231</a>
+<a href="#232" id="232">232</a>
+<a href="#233" id="233">233</a>
+<a href="#234" id="234">234</a>
+<a href="#235" id="235">235</a>
+<a href="#236" id="236">236</a>
 </pre><pre class="rust"><code>
 <span class="kw">use </span>std::fmt;
 
@@ -333,8 +340,15 @@
 </span><span class="attr">#[doc(hidden)]
 </span><span class="kw">impl </span>fmt::Display <span class="kw">for </span>ArgItem {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-        <span class="macro">writeln!</span>(f, <span class="string">&quot; --{}: {}&quot;</span>, <span class="self">self</span>.name, <span class="self">self</span>.detail)<span class="question-mark">?</span>;
-        <span class="macro">writeln!</span>(f, <span class="string">&quot;     type: {}, required: {}; default: {}, alias: {:?}&quot;</span>, <span class="self">self</span>.arg_type, <span class="self">self</span>.default, <span class="self">self</span>.required, <span class="self">self</span>.alias)<span class="question-mark">?</span>;
+        <span class="kw">if let </span>ArgType::PositionalType = <span class="self">self</span>.arg_type{
+            <span class="macro">writeln!</span>(f, <span class="string">&quot; &lt;{}&gt;: {}&quot;</span>, <span class="self">self</span>.name, <span class="self">self</span>.detail)<span class="question-mark">?</span>;
+            <span class="macro">writeln!</span>(f, <span class="string">&quot;     type: {}, required: {}&quot;</span>, 
+                <span class="self">self</span>.arg_type, <span class="self">self</span>.required)<span class="question-mark">?</span>;
+        }<span class="kw">else</span>{
+            <span class="macro">writeln!</span>(f, <span class="string">&quot; --{}: {}&quot;</span>, <span class="self">self</span>.name, <span class="self">self</span>.detail)<span class="question-mark">?</span>;
+            <span class="macro">writeln!</span>(f, <span class="string">&quot;     type: {}, required: {}; default: {}, alias: {:?}&quot;</span>, 
+                <span class="self">self</span>.arg_type, <span class="self">self</span>.required, <span class="self">self</span>.default, <span class="self">self</span>.alias)<span class="question-mark">?</span>;
+        }
         <span class="prelude-val">Ok</span>(())
     }
 }

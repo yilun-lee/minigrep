@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":["main","main_loop"],"mod":["grep","test","utils"]};
+window.SIDEBAR_ITEMS = {"fn":["main_loop"],"mod":["argparse","grep","utils"]};
