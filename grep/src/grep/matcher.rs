@@ -10,10 +10,10 @@ pub trait PatternMatch {
     /// if it contain the pattern
     fn contain(&self, line: &str) -> bool;
     /// extract the pattern
-    fn extract(&self, line: &str) -> Option<String>;
+    fn extract(&self, line: &str) -> Vec<(usize,usize)> ;
     /// Replace the pattern
-    fn replace(&self, line: &str, substitute: &str, times: usize) -> (bool, String);
-}
+    fn replace<'a>(&self, line: &'a str, substitute: &'a str, times: usize) -> Cow<'a, str>;
+    }
 
 
 /// match with regex
@@ -40,27 +40,28 @@ impl RegexMatcher {
     }
 }
 
-impl <'a> PatternMatch for RegexMatcher {
+impl PatternMatch for RegexMatcher {
     /// if it contain the pattern
     fn contain(&self, line: &str) -> bool {
         self.re.is_match(line)
     }
-    /// extract the pattern
-    fn extract(&self, line: &str) -> Option<String> {
-        let my_match = self.re.find(&line);
-        match my_match {
-            Some(v) => {
-                return Some(v.as_str().to_owned());
+    /// extract pos
+    fn extract(&self, line: &str) -> Vec<(usize,usize)> {
+        let mut match_pos_vec: Vec<(usize,usize)> = vec![];
+        for capture_groups in self.re.captures_iter(line) {
+            for my_match in capture_groups.iter(){
+                match my_match {
+                    Some(v) => {
+                        match_pos_vec.push((v.start(),v.end()));
+                    }
+                    None => (),
+                }  
             }
-            None => return None,
-        }  
+        }
+        return match_pos_vec;
     }
     /// Replace the pattern
-    fn replace(&self, line: &str, substitute: &str, times: usize) -> (bool, String){
-        let replaced_line =self.re.replacen(line, times, substitute);
-        match replaced_line {
-            Cow::Borrowed(_) => return ( false, line.to_owned()),
-            Cow::Owned(v) => return ( true, v),
-        }
+    fn replace<'a>(&self, line: &'a str, substitute: &'a str, times: usize) -> Cow<'a, str>{
+        self.re.replacen(line, times, substitute)
     }
 }

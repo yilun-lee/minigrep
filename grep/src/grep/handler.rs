@@ -1,6 +1,12 @@
 
-use super::matcher::RegexMatcher;
-use super::matcher::PatternMatch;
+
+use std::borrow::Cow;
+
+use super::{matcher::PatternMatch, str_const::EMPTY_STR};
+
+
+
+
 /// trait for match a line and return bool, for match only
 /// May be more efficinet
 /// not used for now
@@ -15,7 +21,7 @@ pub trait ReplaceLine {
 }
 
 /// for match mod
-pub struct LineMatcher  {
+pub struct LineMatcher {
     pub matcher: Box<dyn PatternMatch>,
 }
 
@@ -23,21 +29,6 @@ pub struct LineMatcher  {
 impl <'a> ReplaceLine for LineMatcher {
     fn replace_line(&self, line: &str, ) -> (bool, String) {
         return (self.matcher.contain(line), line.to_owned() )
-    }
-}
-
-
-/// for  extract mod
-pub struct LineExtractor  {
-    pub matcher: Box<dyn PatternMatch>,
-}
-
-impl <'a> ReplaceLine for LineExtractor {
-    fn replace_line(&self, line: &str, ) -> (bool, String) {
-        match self.matcher.extract(line) {
-            Some(v) => (true, v.to_owned()),
-            None => (false, line.to_owned()),
-        }
     }
 }
 
@@ -51,7 +42,10 @@ pub struct LineReplacer <'a>{
 
 impl <'a> ReplaceLine for LineReplacer <'a>{
     fn replace_line(&self, line: &str, ) -> (bool, String) {
-        self.matcher.replace(line, self.substitute, self.times)
+       match self.matcher.replace(line, self.substitute, self.times) {
+            Cow::Borrowed(v) => return (false, line.to_owned()),
+            Cow::Owned(v) => return (true, v),
+       }
     }
 }
 

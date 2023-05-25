@@ -10,13 +10,13 @@ mod tests {
     #[test]
     fn test_regex_matcher() {
         let my_str = "AABc____4567__AABC";
-        let my_re = RegexMatcher::new(r"AA.+", true).unwrap();
+        let my_re = RegexMatcher::new(r"[A-Za-z]+", true).unwrap();
         let replacer = "I_AM_REPLACED";
         
         let out = my_re.contain(my_str);
         println!("contain: {}",out);
 
-        let out = my_re.extract(my_str).ok_or(0).unwrap();
+        let out = my_re.extract_first(my_str).ok_or(0).unwrap();
         println!("extract: {}",out);
 
         let (_, out) = my_re.replace(my_str, replacer, 0);
