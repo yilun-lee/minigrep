@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["LineExtractor","LineMatcher","LineReplacer"],"trait":["MatchLine","ReplaceLine"]};
+window.SIDEBAR_ITEMS = {"struct":["LineMatcher","LineReplacer"],"trait":["MatchLine","ReplaceLine"]};

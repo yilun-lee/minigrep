@@ -49,15 +49,15 @@
 <a href="#49" id="49">49</a>
 <a href="#50" id="50">50</a>
 <a href="#51" id="51">51</a>
-<a href="#52" id="52">52</a>
-<a href="#53" id="53">53</a>
-<a href="#54" id="54">54</a>
-<a href="#55" id="55">55</a>
-<a href="#56" id="56">56</a>
-<a href="#57" id="57">57</a>
 </pre><pre class="rust"><code>
-<span class="kw">use </span><span class="kw">super</span>::matcher::RegexMatcher;
-<span class="kw">use </span><span class="kw">super</span>::matcher::PatternMatch;
+
+<span class="kw">use </span>std::borrow::Cow;
+
+<span class="kw">use super</span>::{matcher::PatternMatch, str_const::EMPTY_STR};
+
+
+
+
 <span class="doccomment">/// trait for match a line and return bool, for match only
 /// May be more efficinet
 /// not used for now
@@ -72,7 +72,7 @@
 }
 
 <span class="doccomment">/// for match mod
-</span><span class="kw">pub struct </span>LineMatcher  {
+</span><span class="kw">pub struct </span>LineMatcher {
     <span class="kw">pub </span>matcher: Box&lt;<span class="kw">dyn </span>PatternMatch&gt;,
 }
 
@@ -80,21 +80,6 @@
 </span><span class="kw">impl </span>&lt;<span class="lifetime">&#39;a</span>&gt; ReplaceLine <span class="kw">for </span>LineMatcher {
     <span class="kw">fn </span>replace_line(<span class="kw-2">&amp;</span><span class="self">self</span>, line: <span class="kw-2">&amp;</span>str, ) -&gt; (bool, String) {
         <span class="kw">return </span>(<span class="self">self</span>.matcher.contain(line), line.to_owned() )
-    }
-}
-
-
-<span class="doccomment">/// for  extract mod
-</span><span class="kw">pub struct </span>LineExtractor  {
-    <span class="kw">pub </span>matcher: Box&lt;<span class="kw">dyn </span>PatternMatch&gt;,
-}
-
-<span class="kw">impl </span>&lt;<span class="lifetime">&#39;a</span>&gt; ReplaceLine <span class="kw">for </span>LineExtractor {
-    <span class="kw">fn </span>replace_line(<span class="kw-2">&amp;</span><span class="self">self</span>, line: <span class="kw-2">&amp;</span>str, ) -&gt; (bool, String) {
-        <span class="kw">match </span><span class="self">self</span>.matcher.extract(line) {
-            <span class="prelude-val">Some</span>(v) =&gt; (<span class="bool-val">true</span>, v.to_owned()),
-            <span class="prelude-val">None </span>=&gt; (<span class="bool-val">false</span>, line.to_owned()),
-        }
     }
 }
 
@@ -108,7 +93,10 @@
 
 <span class="kw">impl </span>&lt;<span class="lifetime">&#39;a</span>&gt; ReplaceLine <span class="kw">for </span>LineReplacer &lt;<span class="lifetime">&#39;a</span>&gt;{
     <span class="kw">fn </span>replace_line(<span class="kw-2">&amp;</span><span class="self">self</span>, line: <span class="kw-2">&amp;</span>str, ) -&gt; (bool, String) {
-        <span class="self">self</span>.matcher.replace(line, <span class="self">self</span>.substitute, <span class="self">self</span>.times)
+       <span class="kw">match </span><span class="self">self</span>.matcher.replace(line, <span class="self">self</span>.substitute, <span class="self">self</span>.times) {
+            Cow::Borrowed(v) =&gt; <span class="kw">return </span>(<span class="bool-val">false</span>, line.to_owned()),
+            Cow::Owned(v) =&gt; <span class="kw">return </span>(<span class="bool-val">true</span>, v),
+       }
     }
 }
 

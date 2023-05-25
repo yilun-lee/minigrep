@@ -64,6 +64,7 @@
 <a href="#64" id="64">64</a>
 <a href="#65" id="65">65</a>
 <a href="#66" id="66">66</a>
+<a href="#67" id="67">67</a>
 </pre><pre class="rust"><code>
 
 <span class="kw">use </span>std::borrow::Cow;
@@ -76,10 +77,10 @@
     <span class="doccomment">/// if it contain the pattern
     </span><span class="kw">fn </span>contain(<span class="kw-2">&amp;</span><span class="self">self</span>, line: <span class="kw-2">&amp;</span>str) -&gt; bool;
     <span class="doccomment">/// extract the pattern
-    </span><span class="kw">fn </span>extract(<span class="kw-2">&amp;</span><span class="self">self</span>, line: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;String&gt;;
+    </span><span class="kw">fn </span>extract(<span class="kw-2">&amp;</span><span class="self">self</span>, line: <span class="kw-2">&amp;</span>str) -&gt; Vec&lt;(usize,usize)&gt; ;
     <span class="doccomment">/// Replace the pattern
-    </span><span class="kw">fn </span>replace(<span class="kw-2">&amp;</span><span class="self">self</span>, line: <span class="kw-2">&amp;</span>str, substitute: <span class="kw-2">&amp;</span>str, times: usize) -&gt; (bool, String);
-}
+    </span><span class="kw">fn </span>replace&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, line: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str, substitute: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str, times: usize) -&gt; Cow&lt;<span class="lifetime">&#39;a</span>, str&gt;;
+    }
 
 
 <span class="doccomment">/// match with regex
@@ -106,28 +107,29 @@
     }
 }
 
-<span class="kw">impl </span>&lt;<span class="lifetime">&#39;a</span>&gt; PatternMatch <span class="kw">for </span>RegexMatcher {
+<span class="kw">impl </span>PatternMatch <span class="kw">for </span>RegexMatcher {
     <span class="doccomment">/// if it contain the pattern
     </span><span class="kw">fn </span>contain(<span class="kw-2">&amp;</span><span class="self">self</span>, line: <span class="kw-2">&amp;</span>str) -&gt; bool {
         <span class="self">self</span>.re.is_match(line)
     }
-    <span class="doccomment">/// extract the pattern
-    </span><span class="kw">fn </span>extract(<span class="kw-2">&amp;</span><span class="self">self</span>, line: <span class="kw-2">&amp;</span>str) -&gt; <span class="prelude-ty">Option</span>&lt;String&gt; {
-        <span class="kw">let </span>my_match = <span class="self">self</span>.re.find(<span class="kw-2">&amp;</span>line);
-        <span class="kw">match </span>my_match {
-            <span class="prelude-val">Some</span>(v) =&gt; {
-                <span class="kw">return </span><span class="prelude-val">Some</span>(v.as_str().to_owned());
+    <span class="doccomment">/// extract pos
+    </span><span class="kw">fn </span>extract(<span class="kw-2">&amp;</span><span class="self">self</span>, line: <span class="kw-2">&amp;</span>str) -&gt; Vec&lt;(usize,usize)&gt; {
+        <span class="kw">let </span><span class="kw-2">mut </span>match_pos_vec: Vec&lt;(usize,usize)&gt; = <span class="macro">vec!</span>[];
+        <span class="kw">for </span>capture_groups <span class="kw">in </span><span class="self">self</span>.re.captures_iter(line) {
+            <span class="kw">for </span>my_match <span class="kw">in </span>capture_groups.iter(){
+                <span class="kw">match </span>my_match {
+                    <span class="prelude-val">Some</span>(v) =&gt; {
+                        match_pos_vec.push((v.start(),v.end()));
+                    }
+                    <span class="prelude-val">None </span>=&gt; (),
+                }  
             }
-            <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">None</span>,
-        }  
+        }
+        <span class="kw">return </span>match_pos_vec;
     }
     <span class="doccomment">/// Replace the pattern
-    </span><span class="kw">fn </span>replace(<span class="kw-2">&amp;</span><span class="self">self</span>, line: <span class="kw-2">&amp;</span>str, substitute: <span class="kw-2">&amp;</span>str, times: usize) -&gt; (bool, String){
-        <span class="kw">let </span>replaced_line =<span class="self">self</span>.re.replacen(line, times, substitute);
-        <span class="kw">match </span>replaced_line {
-            Cow::Borrowed(<span class="kw">_</span>) =&gt; <span class="kw">return </span>( <span class="bool-val">false</span>, line.to_owned()),
-            Cow::Owned(v) =&gt; <span class="kw">return </span>( <span class="bool-val">true</span>, v),
-        }
+    </span><span class="kw">fn </span>replace&lt;<span class="lifetime">&#39;a</span>&gt;(<span class="kw-2">&amp;</span><span class="self">self</span>, line: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str, substitute: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str, times: usize) -&gt; Cow&lt;<span class="lifetime">&#39;a</span>, str&gt;{
+        <span class="self">self</span>.re.replacen(line, times, substitute)
     }
 }
 </code></pre></div>

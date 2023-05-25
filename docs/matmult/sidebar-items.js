@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["file_to_mat","get_rand","main","mat_array","nalgebra_new_dot"],"type":["Matrix2x3f"]};

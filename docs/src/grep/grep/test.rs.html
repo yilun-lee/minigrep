@@ -55,13 +55,13 @@
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_regex_matcher() {
         <span class="kw">let </span>my_str = <span class="string">&quot;AABc____4567__AABC&quot;</span>;
-        <span class="kw">let </span>my_re = RegexMatcher::new(<span class="string">r&quot;AA.+&quot;</span>, <span class="bool-val">true</span>).unwrap();
+        <span class="kw">let </span>my_re = RegexMatcher::new(<span class="string">r&quot;[A-Za-z]+&quot;</span>, <span class="bool-val">true</span>).unwrap();
         <span class="kw">let </span>replacer = <span class="string">&quot;I_AM_REPLACED&quot;</span>;
         
         <span class="kw">let </span>out = my_re.contain(my_str);
         <span class="macro">println!</span>(<span class="string">&quot;contain: {}&quot;</span>,out);
 
-        <span class="kw">let </span>out = my_re.extract(my_str).ok_or(<span class="number">0</span>).unwrap();
+        <span class="kw">let </span>out = my_re.extract_first(my_str).ok_or(<span class="number">0</span>).unwrap();
         <span class="macro">println!</span>(<span class="string">&quot;extract: {}&quot;</span>,out);
 
         <span class="kw">let </span>(<span class="kw">_</span>, out) = my_re.replace(my_str, replacer, <span class="number">0</span>);
