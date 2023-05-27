@@ -17,6 +17,7 @@ pub trait PatternMatch {
 
 
 /// match with regex
+#[derive(Clone)]
 pub struct RegexMatcher {
     /// Regex itself 
     re: Regex,

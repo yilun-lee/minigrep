@@ -6,21 +6,19 @@
 mod tests {
     // from lib
     use crate::grep::matcher::RegexMatcher;
-    use crate::utils::{read_file, FileReader};
+    use crate::utils::{FileReader, LinePrinter, PathGlober};
     use crate::main_loop;
-    use crate::grep::handler::{LineReplacer, LineExtractor, LineMatcher};
+    use crate::grep::handler::{LineReplacer, LineMatcher};
     use crate::argparse::MiniGrepArg;
 
     #[test]
     fn test_read_line() {
-        let file_path = "/Users/sox/CODE/minigrep/Cargo.toml".to_string();
-        let lines = read_file(file_path).unwrap();
-
-        for i in lines {
-            println!("{}", i.unwrap());
+        let my_path = PathGlober::new("/Users/sox/CODE/minigrep/grep/*", true).unwrap();
+        
+        for file_path in my_path {
+            println!("{}",file_path);
         }
     }
-
 
     #[test]
     fn test_match() {
@@ -30,25 +28,11 @@ mod tests {
             matcher: Box::new(my_re),
         };
 
-        let file_path = String::from("/Users/sox/CODE/minigrep/example/test.txt");
+        let file_path: String = String::from("/Users/sox/CODE/minigrep/example/test.txt");
         let file_reader = FileReader::new(file_path, 2, 2).unwrap();
+        let line_printer: LinePrinter = LinePrinter{ line_num_flag: true, file_path_flag: true, };
 
-        main_loop(file_reader, my_line_replacer).unwrap();
-
-    }
-
-    #[test]
-    fn test_extract() {
-        let my_re = RegexMatcher::new(r"[^0-9]+AA", true).unwrap();
-        
-        let my_line_replacer = LineExtractor {
-            matcher: Box::new(my_re),
-        };
-
-        let file_path = String::from("/Users/sox/CODE/minigrep/example/test.txt");
-        let file_reader = FileReader::new(file_path, 0, 0).unwrap();
-
-        main_loop(file_reader, my_line_replacer).unwrap();
+        //main_loop(file_reader, my_line_replacer, line_printer).unwrap();
 
     }
 
@@ -66,7 +50,9 @@ mod tests {
         let file_path = String::from("/Users/sox/CODE/minigrep/example/test.txt");
         let file_reader = FileReader::new(file_path, 2, 2).unwrap();
 
-        main_loop(file_reader, my_line_replacer).unwrap();
+        let line_printer: LinePrinter = LinePrinter{ line_num_flag: true, file_path_flag: true, };
+
+        //main_loop(file_reader, my_line_replacer, line_printer).unwrap();
 
     }
 

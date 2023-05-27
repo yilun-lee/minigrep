@@ -18,9 +18,13 @@ matmult_algo: nalgebra rand -> nalgebra dot
 
 
 ```bash
-hyperfine --runs 100 --shell=none --warmup 3 './matmult_read' \
+hyperfine --runs 10 --shell=none --warmup 3 './matmult_read' \
     './matmult_algo' \
+    './matmult_go' \
+    './matmult_gomat' \
     './matmult_rand' \
     'python3 /Users/sox/CODE/minigrep/scripts/matmult_np.py' \
     'python3 /Users/sox/CODE/minigrep/scripts/matmult.py' 
 ```
+
+

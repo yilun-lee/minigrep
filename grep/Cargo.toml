@@ -12,3 +12,4 @@ argtool = { path = "../argtool" }
 anyhow = "1.0.71"
 regex = "1"
 thiserror = "1.0.40"
+glob = "0.3.1"

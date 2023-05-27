@@ -5,7 +5,7 @@
 #[cfg(test)]
 mod tests {
     use crate::grep::matcher::{RegexMatcher, PatternMatch};
-    use crate::grep::handler::{LineReplacer,ReplaceLine};
+    use crate::grep::handler::{LineReplacer,ReplaceLine, LinePainter, LineExtractor};
 
     #[test]
     fn test_regex_matcher() {
@@ -15,12 +15,6 @@ mod tests {
         
         let out = my_re.contain(my_str);
         println!("contain: {}",out);
-
-        let out = my_re.extract_first(my_str).ok_or(0).unwrap();
-        println!("extract: {}",out);
-
-        let (_, out) = my_re.replace(my_str, replacer, 0);
-        println!("replace: {}",out);
 
     }
 
@@ -38,6 +32,37 @@ mod tests {
         let (match_flag, match_line) = my_line_replacer.replace_line(line);
         assert_eq!(match_flag, true);
         println!("{}",match_line);
+    }
+
+    #[test]
+    fn test_painter() {
+        let line = "ldsf_AA_rlkmg_AAglknlkg_AArmgerAAA";
+        let my_re = RegexMatcher::new(r"(A+)", true).unwrap();
+        
+        let my_line_replacer = LinePainter {
+            matcher: Box::new(my_re),
+        };
+
+        let (match_flag, match_line) = my_line_replacer.replace_line(line);
+        //assert_eq!(match_flag, false);
+        println!("{}",match_line);
+
+    }
+
+
+    #[test]
+    fn test_extractor() {
+        let line = "ldsf_AA_rlkmg_AAglknlkg_AArmgerAAA";
+        let my_re = RegexMatcher::new(r"A+", true).unwrap();
+        
+        let my_line_replacer = LineExtractor {
+            matcher: Box::new(my_re),
+        };
+
+        let (match_flag, match_line) = my_line_replacer.replace_line(line);
+        //assert_eq!(match_flag, false);
+        println!("{}",match_line);
+
     }
 
 }
