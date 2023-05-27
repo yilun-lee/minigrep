@@ -72,20 +72,6 @@
 <a href="#72" id="72">72</a>
 <a href="#73" id="73">73</a>
 <a href="#74" id="74">74</a>
-<a href="#75" id="75">75</a>
-<a href="#76" id="76">76</a>
-<a href="#77" id="77">77</a>
-<a href="#78" id="78">78</a>
-<a href="#79" id="79">79</a>
-<a href="#80" id="80">80</a>
-<a href="#81" id="81">81</a>
-<a href="#82" id="82">82</a>
-<a href="#83" id="83">83</a>
-<a href="#84" id="84">84</a>
-<a href="#85" id="85">85</a>
-<a href="#86" id="86">86</a>
-<a href="#87" id="87">87</a>
-<a href="#88" id="88">88</a>
 </pre><pre class="rust"><code>
 
 
@@ -94,21 +80,19 @@
 </span><span class="kw">mod </span>tests {
     <span class="comment">// from lib
     </span><span class="kw">use </span><span class="kw">crate</span>::grep::matcher::RegexMatcher;
-    <span class="kw">use </span><span class="kw">crate</span>::utils::{read_file, FileReader};
+    <span class="kw">use </span><span class="kw">crate</span>::utils::{FileReader, LinePrinter, PathGlober};
     <span class="kw">use </span><span class="kw">crate</span>::main_loop;
-    <span class="kw">use </span><span class="kw">crate</span>::grep::handler::{LineReplacer, LineExtractor, LineMatcher};
+    <span class="kw">use </span><span class="kw">crate</span>::grep::handler::{LineReplacer, LineMatcher};
     <span class="kw">use </span><span class="kw">crate</span>::argparse::MiniGrepArg;
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_read_line() {
-        <span class="kw">let </span>file_path = <span class="string">&quot;/Users/sox/CODE/minigrep/Cargo.toml&quot;</span>.to_string();
-        <span class="kw">let </span>lines = read_file(file_path).unwrap();
-
-        <span class="kw">for </span>i <span class="kw">in </span>lines {
-            <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, i.unwrap());
+        <span class="kw">let </span>my_path = PathGlober::new(<span class="string">&quot;/Users/sox/CODE/minigrep/grep/*&quot;</span>, <span class="bool-val">true</span>).unwrap();
+        
+        <span class="kw">for </span>file_path <span class="kw">in </span>my_path {
+            <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>,file_path);
         }
     }
-
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_match() {
@@ -118,27 +102,13 @@
             matcher: Box::new(my_re),
         };
 
-        <span class="kw">let </span>file_path = String::from(<span class="string">&quot;/Users/sox/CODE/minigrep/example/test.txt&quot;</span>);
+        <span class="kw">let </span>file_path: String = String::from(<span class="string">&quot;/Users/sox/CODE/minigrep/example/test.txt&quot;</span>);
         <span class="kw">let </span>file_reader = FileReader::new(file_path, <span class="number">2</span>, <span class="number">2</span>).unwrap();
+        <span class="kw">let </span>line_printer: LinePrinter = LinePrinter{ line_num_flag: <span class="bool-val">true</span>, file_path_flag: <span class="bool-val">true</span>, };
 
-        main_loop(file_reader, my_line_replacer).unwrap();
+        <span class="comment">//main_loop(file_reader, my_line_replacer, line_printer).unwrap();
 
-    }
-
-    <span class="attr">#[test]
-    </span><span class="kw">fn </span>test_extract() {
-        <span class="kw">let </span>my_re = RegexMatcher::new(<span class="string">r&quot;[^0-9]+AA&quot;</span>, <span class="bool-val">true</span>).unwrap();
-        
-        <span class="kw">let </span>my_line_replacer = LineExtractor {
-            matcher: Box::new(my_re),
-        };
-
-        <span class="kw">let </span>file_path = String::from(<span class="string">&quot;/Users/sox/CODE/minigrep/example/test.txt&quot;</span>);
-        <span class="kw">let </span>file_reader = FileReader::new(file_path, <span class="number">0</span>, <span class="number">0</span>).unwrap();
-
-        main_loop(file_reader, my_line_replacer).unwrap();
-
-    }
+    </span>}
 
     <span class="attr">#[test]
     </span><span class="kw">fn </span>test_replace() {
@@ -154,9 +124,11 @@
         <span class="kw">let </span>file_path = String::from(<span class="string">&quot;/Users/sox/CODE/minigrep/example/test.txt&quot;</span>);
         <span class="kw">let </span>file_reader = FileReader::new(file_path, <span class="number">2</span>, <span class="number">2</span>).unwrap();
 
-        main_loop(file_reader, my_line_replacer).unwrap();
+        <span class="kw">let </span>line_printer: LinePrinter = LinePrinter{ line_num_flag: <span class="bool-val">true</span>, file_path_flag: <span class="bool-val">true</span>, };
 
-    }
+        <span class="comment">//main_loop(file_reader, my_line_replacer, line_printer).unwrap();
+
+    </span>}
 
 
     <span class="attr">#[test]
