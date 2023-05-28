@@ -4,6 +4,8 @@ cd "$BASEDIR"
 
 cargo build -p grep 
 
+#  print help 
+cargo run -p grep -- --help
 
 #  test match 
 cargo run -p grep -- \

@@ -192,18 +192,13 @@
 <a href="#192" id="192">192</a>
 <a href="#193" id="193">193</a>
 <a href="#194" id="194">194</a>
-</pre><pre class="rust"><code>
-
-<span class="kw">use </span>std::borrow::Cow;
+</pre><pre class="rust"><code><span class="kw">use </span><span class="kw">super</span>::matcher::{PatternMatch, RegexMatcher};
+<span class="kw">use </span><span class="kw">super</span>::str_const::{COLOER_RESET, RED_START};
 <span class="kw">use </span>anyhow::Result;
-<span class="kw">use </span><span class="kw">super</span>::matcher::{PatternMatch,RegexMatcher};
-<span class="kw">use </span><span class="kw">super</span>::str_const::{COLOER_RESET,RED_START};
-
-
-
+<span class="kw">use </span>std::borrow::Cow;
 
 <span class="kw">pub trait </span>Grep {
-    <span class="kw">fn </span>grep_one_line(<span class="kw-2">&amp;</span><span class="self">self</span>, line: <span class="kw-2">&amp;</span>str,) -&gt; (bool, String);
+    <span class="kw">fn </span>grep_one_line(<span class="kw-2">&amp;</span><span class="self">self</span>, line: <span class="kw-2">&amp;</span>str) -&gt; (bool, String);
 }
 
 <span class="kw">pub struct </span>GrepGroup {
@@ -217,31 +212,30 @@
     replace_times: usize,
 }
 
-<span class="kw">impl </span>Grep <span class="kw">for </span>GrepGroup{
-    <span class="kw">fn </span>grep_one_line(<span class="kw-2">&amp;</span><span class="self">self</span>, line: <span class="kw-2">&amp;</span>str,) -&gt; (bool, String){
+<span class="kw">impl </span>Grep <span class="kw">for </span>GrepGroup {
+    <span class="kw">fn </span>grep_one_line(<span class="kw-2">&amp;</span><span class="self">self</span>, line: <span class="kw-2">&amp;</span>str) -&gt; (bool, String) {
         <span class="kw">let </span><span class="kw-2">mut </span>match_flag: bool = <span class="bool-val">false</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>my_str: String = line.to_owned();
 
         <span class="comment">// match
-        </span><span class="kw">if </span><span class="self">self</span>.match_list.len() &gt; <span class="number">0</span>{
-            ( match_flag, my_str) = <span class="self">self</span>.match_line(line);
-            <span class="kw">if </span>! match_flag { <span class="kw">return </span>( <span class="bool-val">false</span>, my_str); };
+        </span><span class="kw">if </span><span class="self">self</span>.match_list.len() &gt; <span class="number">0 </span>{
+            (match_flag, my_str) = <span class="self">self</span>.match_line(line);
+            <span class="kw">if </span>!match_flag {
+                <span class="kw">return </span>(<span class="bool-val">false</span>, my_str);
+            };
         };
         <span class="comment">// extract
-        </span><span class="kw">if </span><span class="self">self</span>.extract_list.len() &gt; <span class="number">0</span>{
-            ( <span class="kw">_</span>, my_str ) = <span class="self">self</span>.extract_line(line);
+        </span><span class="kw">if </span><span class="self">self</span>.extract_list.len() &gt; <span class="number">0 </span>{
+            (<span class="kw">_</span>, my_str) = <span class="self">self</span>.extract_line(line);
         };
         <span class="comment">// replace
-        </span><span class="kw">if </span><span class="self">self</span>.replace_list.len() &gt; <span class="number">0</span>{
+        </span><span class="kw">if </span><span class="self">self</span>.replace_list.len() &gt; <span class="number">0 </span>{
             my_str = <span class="self">self</span>.replace_line(<span class="kw-2">&amp;</span>my_str);
         };
 
-        <span class="kw">return </span>( match_flag, my_str);
-
+        <span class="kw">return </span>(match_flag, my_str);
     }
-
 }
-
 
 <span class="doccomment">/// pub method for GrepGroup
 </span><span class="kw">impl </span>GrepGroup {
@@ -254,105 +248,102 @@
         ignorecase: bool,
         color_flag: bool,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;GrepGroup&gt; {
-
         <span class="kw">let </span><span class="kw-2">mut </span>match_list: Vec&lt;Box&lt;<span class="kw">dyn </span>PatternMatch&gt;&gt; = <span class="macro">vec!</span>[];
         <span class="kw">for </span>i <span class="kw">in </span><span class="kw-2">&amp;</span>expr {
-            <span class="kw">let </span>my_re = RegexMatcher::new(i, ignorecase )<span class="question-mark">?</span>;
+            <span class="kw">let </span>my_re = RegexMatcher::new(i, ignorecase)<span class="question-mark">?</span>;
             match_list.push(Box::new(my_re));
-        };
+        }
 
         <span class="kw">let </span><span class="kw-2">mut </span>extract_list: Vec&lt;Box&lt;<span class="kw">dyn </span>PatternMatch&gt;&gt; = <span class="macro">vec!</span>[];
         <span class="kw">for </span>i <span class="kw">in </span><span class="kw-2">&amp;</span>extract_expr {
-            <span class="kw">let </span>my_re = RegexMatcher::new(i, ignorecase )<span class="question-mark">?</span>;
+            <span class="kw">let </span>my_re = RegexMatcher::new(i, ignorecase)<span class="question-mark">?</span>;
             extract_list.push(Box::new(my_re));
-        };
+        }
 
         <span class="kw">let </span><span class="kw-2">mut </span>replace_list: Vec&lt;Box&lt;<span class="kw">dyn </span>PatternMatch&gt;&gt; = <span class="macro">vec!</span>[];
         <span class="kw">for </span>i <span class="kw">in </span><span class="kw-2">&amp;</span>replace_expr {
-            <span class="kw">let </span>my_re = RegexMatcher::new(i, ignorecase )<span class="question-mark">?</span>;
+            <span class="kw">let </span>my_re = RegexMatcher::new(i, ignorecase)<span class="question-mark">?</span>;
             replace_list.push(Box::new(my_re));
-        };
+        }
 
-        <span class="kw">let </span>my_grep_group = GrepGroup{
+        <span class="kw">let </span>my_grep_group = GrepGroup {
             match_list: match_list,
             color_flag: color_flag,
-        
+
             extract_list: extract_list,
-        
+
             replace_list: replace_list,
             replace_tobe: replacer,
-            replace_times: replace_times,        
+            replace_times: replace_times,
         };
         <span class="prelude-val">Ok</span>(my_grep_group)
     }
 
-    <span class="kw">pub fn </span>match_line(<span class="kw-2">&amp;</span><span class="self">self</span>, line: <span class="kw-2">&amp;</span>str,) -&gt; (bool,String) {
-        <span class="kw">if </span>! <span class="self">self</span>.color_flag {
+    <span class="kw">pub fn </span>match_line(<span class="kw-2">&amp;</span><span class="self">self</span>, line: <span class="kw-2">&amp;</span>str) -&gt; (bool, String) {
+        <span class="kw">if </span>!<span class="self">self</span>.color_flag {
             <span class="kw">let </span><span class="kw-2">mut </span>flag: bool = <span class="bool-val">true</span>;
-            <span class="kw">for </span>i <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.match_list{
+            <span class="kw">for </span>i <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.match_list {
                 flag = i.contain(line);
-                <span class="kw">if </span>! flag {<span class="kw">break</span>;}
-            };
+                <span class="kw">if </span>!flag {
+                    <span class="kw">break</span>;
+                }
+            }
             <span class="kw">return </span>(flag, line.to_owned());
-            
         } <span class="kw">else </span>{
-
             <span class="kw">let </span>target_vec = <span class="self">self</span>.aggregate_extract(line, <span class="kw-2">&amp;</span><span class="self">self</span>.match_list);
-            <span class="kw">if </span>! target_vec.iter().any(|i: <span class="kw-2">&amp;</span>bool| <span class="kw-2">*</span>i) {
-                <span class="kw">return </span>(<span class="bool-val">false</span>, line.to_owned() )
-            } 
+            <span class="kw">if </span>!target_vec.iter().any(|i: <span class="kw-2">&amp;</span>bool| <span class="kw-2">*</span>i) {
+                <span class="kw">return </span>(<span class="bool-val">false</span>, line.to_owned());
+            }
             <span class="kw">let </span>my_str = <span class="self">self</span>.paint_line(line, target_vec, <span class="bool-val">false</span>);
             <span class="kw">return </span>(<span class="bool-val">true</span>, my_str);
         }
     }
 
-    <span class="kw">pub fn </span>extract_line(<span class="kw-2">&amp;</span><span class="self">self</span>, line: <span class="kw-2">&amp;</span>str) -&gt; (bool,String) {
+    <span class="kw">pub fn </span>extract_line(<span class="kw-2">&amp;</span><span class="self">self</span>, line: <span class="kw-2">&amp;</span>str) -&gt; (bool, String) {
         <span class="kw">let </span>target_vec = <span class="self">self</span>.aggregate_extract(line, <span class="kw-2">&amp;</span><span class="self">self</span>.extract_list);
-        <span class="kw">if </span>! target_vec.iter().any(|i: <span class="kw-2">&amp;</span>bool| <span class="kw-2">*</span>i) {
-            <span class="kw">return </span>(<span class="bool-val">false</span>, line.to_owned() )
-        } 
+        <span class="kw">if </span>!target_vec.iter().any(|i: <span class="kw-2">&amp;</span>bool| <span class="kw-2">*</span>i) {
+            <span class="kw">return </span>(<span class="bool-val">false</span>, line.to_owned());
+        }
         <span class="kw">let </span>my_str = <span class="self">self</span>.paint_line(line, target_vec, <span class="bool-val">true</span>);
         <span class="kw">return </span>(<span class="bool-val">true</span>, my_str);
     }
 
-    <span class="kw">pub fn </span>replace_line(<span class="kw-2">&amp;</span><span class="self">self</span>, line: <span class="kw-2">&amp;</span>str, ) -&gt; String {
+    <span class="kw">pub fn </span>replace_line(<span class="kw-2">&amp;</span><span class="self">self</span>, line: <span class="kw-2">&amp;</span>str) -&gt; String {
         <span class="kw">let </span><span class="kw-2">mut </span>my_str: String = line.to_owned();
         <span class="kw">let </span><span class="kw-2">mut </span>cc = <span class="number">0</span>;
         <span class="kw">for </span>i <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.replace_list {
             <span class="kw">match </span>i.replace(<span class="kw-2">&amp;</span>my_str, <span class="kw-2">&amp;</span><span class="self">self</span>.replace_tobe[cc], <span class="self">self</span>.replace_times) {
                 Cow::Borrowed(<span class="kw">_</span>) =&gt; <span class="kw">continue</span>,
-                Cow::Owned(v) =&gt;  my_str = v,
+                Cow::Owned(v) =&gt; my_str = v,
             }
-            cc+=<span class="number">1
-        </span>};
+            cc += <span class="number">1
+        </span>}
         my_str
     }
-
 }
-
 
 <span class="doccomment">/// private method for GrepGroup
 </span><span class="kw">impl </span>GrepGroup {
-
-    <span class="kw">fn </span>aggregate_extract(<span class="kw-2">&amp;</span><span class="self">self</span>, line: <span class="kw-2">&amp;</span>str, extract_list: <span class="kw-2">&amp;</span>Vec&lt;Box&lt;<span class="kw">dyn </span>PatternMatch&gt;&gt;) -&gt; Vec&lt;bool&gt;{
-
+    <span class="kw">fn </span>aggregate_extract(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        line: <span class="kw-2">&amp;</span>str,
+        extract_list: <span class="kw-2">&amp;</span>Vec&lt;Box&lt;<span class="kw">dyn </span>PatternMatch&gt;&gt;,
+    ) -&gt; Vec&lt;bool&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>target_vec: Vec&lt;bool&gt; = <span class="macro">vec!</span>[<span class="bool-val">false</span>; line.len()];
 
-        <span class="kw">for </span>matcher <span class="kw">in </span>extract_list{
-
+        <span class="kw">for </span>matcher <span class="kw">in </span>extract_list {
             <span class="kw">let </span>match_vec = matcher.extract(line);
             <span class="kw">for </span>(i, j) <span class="kw">in </span>match_vec {
                 <span class="kw">for </span>k <span class="kw">in </span>i..j {
                     target_vec[k] = <span class="bool-val">true</span>;
-                };
-            };
-        };
+                }
+            }
+        }
 
         <span class="kw">return </span>target_vec;
     }
 
-    <span class="kw">fn </span>paint_line(<span class="kw-2">&amp;</span><span class="self">self</span>, line: <span class="kw-2">&amp;</span>str, target_vec: Vec&lt;bool&gt;, extract_flag: bool) -&gt; String{
-
+    <span class="kw">fn </span>paint_line(<span class="kw-2">&amp;</span><span class="self">self</span>, line: <span class="kw-2">&amp;</span>str, target_vec: Vec&lt;bool&gt;, extract_flag: bool) -&gt; String {
         <span class="kw">let </span><span class="kw-2">mut </span>my_str = String::from(<span class="string">&quot;&quot;</span>);
         <span class="kw">let </span><span class="kw-2">mut </span>cc: usize = <span class="number">1</span>;
         <span class="kw">let </span><span class="kw-2">mut </span>start: usize = <span class="number">0</span>;
@@ -364,12 +355,19 @@
             </span>} <span class="kw">else </span>{
                 <span class="kw">if </span>start != end {
                     <span class="kw">if </span>!extract_flag {
-                        my_str = my_str + <span class="kw-2">&amp;</span>line[last_end..start] +
-                            RED_START + <span class="kw-2">&amp;</span>line[start..end] +COLOER_RESET;
+                        my_str = my_str
+                            + <span class="kw-2">&amp;</span>line[last_end..start]
+                            + RED_START
+                            + <span class="kw-2">&amp;</span>line[start..end]
+                            + COLOER_RESET;
                         last_end = end;
                     } <span class="kw">else </span>{
-                        <span class="kw">if </span>my_str.len() == <span class="number">0 </span>{ my_str = my_str + <span class="kw-2">&amp;</span>line[start..end];}
-                        <span class="kw">else </span>{ my_str = my_str + <span class="string">&quot;\n&quot; </span>+ <span class="kw-2">&amp;</span>line[start..end] } }
+                        <span class="kw">if </span>my_str.len() == <span class="number">0 </span>{
+                            my_str = my_str + <span class="kw-2">&amp;</span>line[start..end];
+                        } <span class="kw">else </span>{
+                            my_str = my_str + <span class="string">&quot;\n&quot; </span>+ <span class="kw-2">&amp;</span>line[start..end]
+                        }
+                    }
                 }
                 start = cc;
             }
@@ -377,14 +375,16 @@
             cc += <span class="number">1</span>;
         }
 
-        <span class="kw">if </span>last_end &lt;= cc &amp;&amp; !extract_flag { 
-            <span class="kw">if </span>start != end { my_str = my_str + <span class="kw-2">&amp;</span>line[last_end..start] + 
-                 RED_START + <span class="kw-2">&amp;</span>line[start..] + COLOER_RESET;}
-            <span class="kw">else </span>{ my_str = my_str + <span class="kw-2">&amp;</span>line[last_end..]; }
-        } 
-        <span class="kw">return </span>my_str
+        <span class="kw">if </span>last_end &lt;= cc &amp;&amp; !extract_flag {
+            <span class="kw">if </span>start != end {
+                my_str =
+                    my_str + <span class="kw-2">&amp;</span>line[last_end..start] + RED_START + <span class="kw-2">&amp;</span>line[start..] + COLOER_RESET;
+            } <span class="kw">else </span>{
+                my_str = my_str + <span class="kw-2">&amp;</span>line[last_end..];
+            }
+        }
+        <span class="kw">return </span>my_str;
     }
-
 }
 </code></pre></div>
 </section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="grep" data-themes="" data-resource-suffix="" data-rustdoc-version="1.69.0 (84c898d65 2023-04-16)" data-search-js="search-8a59a8356673ec1f.js" data-settings-js="settings-f0c5c39777a9a2f6.js" data-settings-css="settings-0bcba95ff279c1db.css" ></div></body></html>

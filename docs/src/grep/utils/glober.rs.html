@@ -74,49 +74,69 @@
 <a href="#74" id="74">74</a>
 <a href="#75" id="75">75</a>
 <a href="#76" id="76">76</a>
-</pre><pre class="rust"><code>
-<span class="kw">use </span>std::{path::{PathBuf}, fs};
-<span class="kw">use </span>glob::{glob};
-<span class="kw">use </span>anyhow::anyhow;
-
-
+<a href="#77" id="77">77</a>
+<a href="#78" id="78">78</a>
+<a href="#79" id="79">79</a>
+<a href="#80" id="80">80</a>
+<a href="#81" id="81">81</a>
+<a href="#82" id="82">82</a>
+<a href="#83" id="83">83</a>
+<a href="#84" id="84">84</a>
+</pre><pre class="rust"><code><span class="kw">use </span>anyhow::anyhow;
+<span class="kw">use </span>glob::glob;
+<span class="kw">use </span>std::{fs, path::PathBuf};
 
 <span class="kw">pub struct </span>PathGlober {
     pathbuf_vec: Vec&lt;PathBuf&gt;,
     skip_hidden: bool,
+    max_depth: usize,
 }
 
 <span class="kw">impl </span>PathGlober {
-    <span class="kw">pub fn </span>new(file_pattern: <span class="kw-2">&amp;</span>str, skip_hidden: bool) -&gt; <span class="prelude-ty">Result</span>&lt;PathGlober, anyhow::Error&gt;{
+    <span class="kw">pub fn </span>new(
+        file_pattern: <span class="kw-2">&amp;</span>str,
+        skip_hidden: bool,
+        max_depth: usize,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;PathGlober, anyhow::Error&gt; {
         <span class="kw">let </span><span class="kw-2">mut </span>path_glober = PathGlober {
             pathbuf_vec: <span class="macro">vec!</span>[],
             skip_hidden: skip_hidden,
+            max_depth: max_depth,
         };
-        path_glober.search_path(file_pattern)<span class="question-mark">?</span>;
+        path_glober.search_path(file_pattern, <span class="number">0</span>)<span class="question-mark">?</span>;
         <span class="kw">if </span>path_glober.pathbuf_vec.len() == <span class="number">0 </span>{
-            <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">anyhow!</span>(<span class="string">&quot;No files found!&quot;</span>))
+            <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">anyhow!</span>(<span class="string">&quot;No files found!&quot;</span>));
         }
         <span class="kw">return </span><span class="prelude-val">Ok</span>(path_glober);
     }
 
-    <span class="kw">fn </span>search_path(<span class="kw-2">&amp;mut </span><span class="self">self</span>, file_pattern: <span class="kw-2">&amp;</span>str, ) -&gt; <span class="prelude-ty">Result</span>&lt;(), anyhow::Error&gt;{
+    <span class="kw">fn </span>search_path(
+        <span class="kw-2">&amp;mut </span><span class="self">self</span>,
+        file_pattern: <span class="kw-2">&amp;</span>str,
+        current_depth: usize,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;(), anyhow::Error&gt; {
         <span class="kw">let </span>entry = glob(file_pattern)<span class="question-mark">?</span>;
-        <span class="kw">for </span>i <span class="kw">in </span>entry{
+        <span class="kw">for </span>i <span class="kw">in </span>entry {
             <span class="kw">let </span>my_pathbuf: PathBuf = fs::canonicalize(i<span class="question-mark">?</span>)<span class="question-mark">?</span>;
             <span class="kw">let </span>my_path = my_pathbuf.as_path();
             <span class="kw">let </span>my_path_str = my_path
-                .file_name().ok_or(<span class="macro">anyhow!</span>(<span class="string">&quot;Get filename failded&quot;</span>))<span class="question-mark">?
-                </span>.to_str().ok_or(<span class="macro">anyhow!</span>(<span class="string">&quot;filename to str failded&quot;</span>))<span class="question-mark">?</span>;
-            <span class="kw">if </span>my_path_str.starts_with(<span class="string">&quot;.&quot;</span>) &amp;&amp; <span class="self">self</span>.skip_hidden {<span class="kw">continue</span>;};
+                .file_name()
+                .ok_or(<span class="macro">anyhow!</span>(<span class="string">&quot;Get filename failded&quot;</span>))<span class="question-mark">?
+                </span>.to_str()
+                .ok_or(<span class="macro">anyhow!</span>(<span class="string">&quot;filename to str failded&quot;</span>))<span class="question-mark">?</span>;
+            <span class="kw">if </span>my_path_str.starts_with(<span class="string">&quot;.&quot;</span>) &amp;&amp; <span class="self">self</span>.skip_hidden {
+                <span class="kw">continue</span>;
+            };
 
-            <span class="kw">if </span>my_path.is_dir() {
-                <span class="kw">let </span>dirpath = <span class="kw">match </span>my_path.parent(){
+            <span class="kw">if </span>my_path.is_dir() &amp;&amp; current_depth &lt; <span class="self">self</span>.max_depth {
+                <span class="kw">let </span>dirpath = <span class="kw">match </span>my_path.parent() {
                     <span class="prelude-val">Some</span>(v) =&gt; {
                         <span class="kw">let </span>vv = v.to_str().ok_or(<span class="macro">anyhow!</span>(<span class="string">&quot;filename to str failded&quot;</span>))<span class="question-mark">?</span>;
-                        <span class="macro">format!</span>(<span class="string">&quot;{}/{}/*&quot;</span>, vv, my_path_str) },
-                    <span class="prelude-val">None </span>=&gt;  <span class="macro">format!</span>(<span class="string">&quot;{}/*&quot;</span>, my_path_str),
+                        <span class="macro">format!</span>(<span class="string">&quot;{}/{}/*&quot;</span>, vv, my_path_str)
+                    }
+                    <span class="prelude-val">None </span>=&gt; <span class="macro">format!</span>(<span class="string">&quot;{}/*&quot;</span>, my_path_str),
                 };
-                <span class="self">self</span>.search_path(<span class="kw-2">&amp;</span>dirpath)<span class="question-mark">?</span>;
+                <span class="self">self</span>.search_path(<span class="kw-2">&amp;</span>dirpath, current_depth + <span class="number">1</span>)<span class="question-mark">?</span>;
             } <span class="kw">else </span>{
                 <span class="self">self</span>.pathbuf_vec.push(my_pathbuf);
             }
@@ -124,28 +144,24 @@
         <span class="prelude-val">Ok</span>(())
     }
 
-    <span class="kw">fn </span>read_one_entry(<span class="kw-2">&amp;</span><span class="self">self</span>, my_path: PathBuf) -&gt; <span class="prelude-ty">Result</span>&lt;String, anyhow::Error&gt;{
-        <span class="kw">let </span>file_path: String = <span class="kw">match </span>my_path.clone()
-            .into_os_string().into_string(){
+    <span class="kw">fn </span>read_one_entry(<span class="kw-2">&amp;</span><span class="self">self</span>, my_path: PathBuf) -&gt; <span class="prelude-ty">Result</span>&lt;String, anyhow::Error&gt; {
+        <span class="kw">let </span>file_path: String = <span class="kw">match </span>my_path.clone().into_os_string().into_string() {
             <span class="prelude-val">Ok</span>(v) =&gt; v,
-            <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>( <span class="macro">anyhow!</span>(<span class="string">&quot;pathbuf to os string error&quot;</span>)),
+            <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">anyhow!</span>(<span class="string">&quot;pathbuf to os string error&quot;</span>)),
         };
 
         <span class="kw">return </span><span class="prelude-val">Ok</span>(file_path);
-
     }
-
 }
 
-
-<span class="kw">impl </span>Iterator <span class="kw">for </span>PathGlober{
+<span class="kw">impl </span>Iterator <span class="kw">for </span>PathGlober {
     <span class="kw">type </span>Item = String;
     <span class="kw">fn </span>next(<span class="kw-2">&amp;mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span>&lt;<span class="self">Self</span>::Item&gt; {
-        <span class="kw">let </span>pathbuf= <span class="self">self</span>.pathbuf_vec.pop()<span class="question-mark">?</span>;
+        <span class="kw">let </span>pathbuf = <span class="self">self</span>.pathbuf_vec.pop()<span class="question-mark">?</span>;
         <span class="kw">let </span>my_out = <span class="kw">match </span><span class="self">self</span>.read_one_entry(pathbuf) {
             <span class="prelude-val">Ok</span>(v) =&gt; v,
-            <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="kw">return </span><span class="prelude-val">None
-        </span>};  
+            <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="kw">return </span><span class="prelude-val">None</span>,
+        };
 
         <span class="prelude-val">Some</span>(my_out)
     }

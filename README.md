@@ -12,19 +12,3 @@ go to [github page](https://yilun-lee.github.io/minigrep/argtool/index.html) gen
 - https://dev.to/deciduously/prepare-your-rust-api-docs-for-github-pages-2n5i
 
 
-matmult_rand: rand gen -> loop dot
-matmult_read: read mat -> loop dot
-matmult_algo: nalgebra rand -> nalgebra dot
-
-
-```bash
-hyperfine --runs 10 --shell=none --warmup 3 './matmult_read' \
-    './matmult_algo' \
-    './matmult_go' \
-    './matmult_gomat' \
-    './matmult_rand' \
-    'python3 /Users/sox/CODE/minigrep/scripts/matmult_np.py' \
-    'python3 /Users/sox/CODE/minigrep/scripts/matmult.py' 
-```
-
-

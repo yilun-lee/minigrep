@@ -109,11 +109,11 @@
 //!
 //! Provides an argparser with several argument type ( argtype )
 //! there are four argtype:
-//! - Basic argtype 
+//! - Basic argtype
 //! - List argtype
 //! - Positional argtype
 //! - Flag argtype
-//! 
+//!
 //! This module is part of my minigrep, WIP
 //! Not opitmized yet
 
@@ -122,12 +122,12 @@
 //! use argtool::ArgItem;
 //! use argtool::ArgGroup;
 //! use argtool::ArgType;
-//! 
+//!
 //! // create argument     
 //! let name = String::from(&quot;Test&quot;);
 //! let desciption = String::from(&quot;This is a Test&quot;);
 //! let mut my_arg_table: ArgGroup = ArgGroup::new(name, desciption);
-//! 
+//!
 //! // add arg
 //! my_arg_table.add_arg(
 //!    ArgItem::new(&quot;line&quot;, &quot;n&quot;)
@@ -135,32 +135,32 @@
 //!    .set_default(&quot;-1&quot;, false)
 //!    .set_argtype(ArgType::BaseType)
 //!     ).unwrap();
-//! 
+//!
 //! my_arg_table.add_arg(
 //!     ArgItem::new(&quot;ignorecase&quot;, &quot;i&quot;)
 //!     .set_detail(&quot;ignorecase or not &quot;)
 //!     .set_default(&quot;false&quot;, false)
 //!     .set_argtype(ArgType::FlagType)
 //!     ).unwrap();
-//! 
+//!
 //! // you can print it as help page
 //! println!(&quot;{}&quot;, my_arg_table);
-//! 
+//!
 //! // define mock input
 //! let mystr: String = String::from(&quot;/lib.rs -n 3 -i &quot;);
 //! let my_cmd_iter = mystr.split(&quot; &quot;).into_iter();
-//! 
+//!
 //! // parse
 //! let my_arg = my_arg_table.parse(my_cmd_iter).unwrap();
 //! println!(&quot;{:#?}&quot;, my_arg);
-//! 
-//! // get value 
+//!
+//! // get value
 //! assert_eq!(true, my_arg[&quot;ignorecase&quot;].get_bool().unwrap());
 //! assert_eq!(3, my_arg_table.get_i32(&quot;line&quot;).unwrap());
 //! ```
-//! 
+//!
 //! # Arg Type
-//! - Basic argtype 
+//! - Basic argtype
 //! ```bash
 //! ./lib.rs -a &quot;One&quot;
 //! ```
@@ -174,36 +174,36 @@
 //! ```
 //! - Flag argtype
 //! ```bash
-//! ./lib.rs -a 
+//! ./lib.rs -a
 //! ```
 //! For detail please check [ArgType](argitem::ArgType)
-//! 
+//!
 //! # Value Type
 //! All value are parsed into string in default.
 //! In order to parse to vec and scaler in rust, we use an Enum [ArgValue](argitem::ArgValue) to stored value [STR](argitem::ArgValue::STR) and [STR](argitem::ArgValue::VEC).
 //! You can parse it as different type according to the parse function used. (e.g. get_bool, get_vec)
 //! They will be parse only when you want to get them out of [ArgGroup](argroup::ArgGroup).
-//! 
+//!
 //! There are two method to extract value
 //! 1. use [ArgGroup](argroup::ArgGroup) object
 //! ```no_test
 //! assert_eq!(3, my_arg_table.get_i32(&quot;line&quot;).unwrap());
 //! ```
-//! 
+//!
 //! 2. Use HashMap return from the ArgGroup.parse
 //! ```no_test
 //! assert_eq!(true, my_arg[&quot;ignorecase&quot;].get_bool().unwrap());
 //! ```
-//! 
+//!
 //! For detail please check [ArgValue](argitem::ArgValue)
-//! 
+//!
 //! Supported type:
 //! - String
 //! - i32
 //! - f32
-//! - bool 
+//! - bool
 //! - Vec\&lt;String\&gt; (For List Argument only)
-//! 
+//!
 
 </span><span class="kw">pub mod </span>argitem;
 <span class="kw">pub mod </span>argroup;

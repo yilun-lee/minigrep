@@ -222,20 +222,7 @@
 <a href="#222" id="222">222</a>
 <a href="#223" id="223">223</a>
 <a href="#224" id="224">224</a>
-<a href="#225" id="225">225</a>
-<a href="#226" id="226">226</a>
-<a href="#227" id="227">227</a>
-<a href="#228" id="228">228</a>
-<a href="#229" id="229">229</a>
-<a href="#230" id="230">230</a>
-<a href="#231" id="231">231</a>
-<a href="#232" id="232">232</a>
-<a href="#233" id="233">233</a>
-<a href="#234" id="234">234</a>
-<a href="#235" id="235">235</a>
-<a href="#236" id="236">236</a>
-</pre><pre class="rust"><code>
-<span class="kw">use </span>std::fmt;
+</pre><pre class="rust"><code><span class="kw">use </span>std::fmt;
 
 <span class="kw">use </span>anyhow::anyhow;
 
@@ -243,40 +230,39 @@
 /// There are four argument type can be used. The default is [ArgType::BaseType]
 </span><span class="kw">pub enum </span>ArgType {
     <span class="doccomment">/// BaseType:
-    /// - The classic type 
+    /// - The classic type
     /// - a flag following by a content
-    /// 
+    ///
     /// ```bash
     /// ./program -a &quot;One&quot;
     /// ```
-    </span>BaseType,   
-    <span class="doccomment">/// PositionalType: 
-    /// - Positional argument with no argument flag specified. 
+    </span>BaseType,
+    <span class="doccomment">/// PositionalType:
+    /// - Positional argument with no argument flag specified.
     /// - Parse to specific argument according to position
     /// - Always required
-    /// 
+    ///
     /// ```bash
     /// ./program &quot;One&quot;
     /// ```
-    </span>PositionalType,    
+    </span>PositionalType,
 
     <span class="doccomment">/// ListType:
-    /// - Like the BaseType, but can be specified multiple times. 
+    /// - Like the BaseType, but can be specified multiple times.
     /// - Will be paresed as Vec&lt;String&gt;
-    /// 
+    ///
     /// ```bash
     /// ./program -a &quot;One&quot; -a &quot;Two&quot;
     /// ```
-
-    </span>ListType,    
+    </span>ListType,
     <span class="doccomment">/// FlagType
     /// - flag only argument. with no content
     /// - return will always be bool, default is false, required is set to false
-    /// 
+    ///
     /// ```bash
-    /// ./program -a 
+    /// ./program -a
     /// ```
-    </span>FlagType,    
+    </span>FlagType,
 }
 
 <span class="doccomment">/// Display for argtype
@@ -294,9 +280,9 @@
 
 <span class="doccomment">/// struct for one argument
 /// An example
-/// ``` 
+/// ```
 /// use argtool::{ArgItem,ArgType};
-/// 
+///
 /// let arg = ArgItem::new(&quot;line&quot;, &quot;n&quot;)
 ///     .set_detail(&quot;number of line&quot;)
 ///     .set_default(&quot;-1&quot;, false)
@@ -320,12 +306,12 @@
 /// - detail   -&gt; &quot;No detail&quot;
 /// - required -&gt; true
 /// - default -&gt; &quot;&quot;
-</span><span class="kw">impl  </span>Default <span class="kw">for </span>ArgItem {
+</span><span class="kw">impl </span>Default <span class="kw">for </span>ArgItem {
     <span class="kw">fn </span>default() -&gt; ArgItem {
         ArgItem {
             name: String::from(<span class="string">&quot;&quot;</span>),
             arg_type: ArgType::BaseType,
-            
+
             alias: <span class="macro">vec!</span>[],
             detail: String::from(<span class="string">&quot;No detail&quot;</span>),
 
@@ -335,70 +321,65 @@
     }
 }
 
-
 <span class="doccomment">/// Display detail for an argument
 </span><span class="attr">#[doc(hidden)]
 </span><span class="kw">impl </span>fmt::Display <span class="kw">for </span>ArgItem {
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
-        <span class="kw">if let </span>ArgType::PositionalType = <span class="self">self</span>.arg_type{
+        <span class="kw">if let </span>ArgType::PositionalType = <span class="self">self</span>.arg_type {
             <span class="macro">writeln!</span>(f, <span class="string">&quot; &lt;{}&gt;: {}&quot;</span>, <span class="self">self</span>.name, <span class="self">self</span>.detail)<span class="question-mark">?</span>;
-            <span class="macro">writeln!</span>(f, <span class="string">&quot;     type: {}, required: {}&quot;</span>, 
-                <span class="self">self</span>.arg_type, <span class="self">self</span>.required)<span class="question-mark">?</span>;
-        }<span class="kw">else</span>{
+            <span class="macro">writeln!</span>(
+                f,
+                <span class="string">&quot;     type: {}, required: {}&quot;</span>,
+                <span class="self">self</span>.arg_type, <span class="self">self</span>.required
+            )<span class="question-mark">?</span>;
+        } <span class="kw">else </span>{
             <span class="macro">writeln!</span>(f, <span class="string">&quot; --{}: {}&quot;</span>, <span class="self">self</span>.name, <span class="self">self</span>.detail)<span class="question-mark">?</span>;
-            <span class="macro">writeln!</span>(f, <span class="string">&quot;     type: {}, required: {}; default: {}, alias: {:?}&quot;</span>, 
-                <span class="self">self</span>.arg_type, <span class="self">self</span>.required, <span class="self">self</span>.default, <span class="self">self</span>.alias)<span class="question-mark">?</span>;
+            <span class="macro">writeln!</span>(
+                f,
+                <span class="string">&quot;     type: {}, required: {}; default: {}, alias: {:?}&quot;</span>,
+                <span class="self">self</span>.arg_type, <span class="self">self</span>.required, <span class="self">self</span>.default, <span class="self">self</span>.alias
+            )<span class="question-mark">?</span>;
         }
         <span class="prelude-val">Ok</span>(())
     }
 }
 
-
-<span class="kw">impl </span>&lt;<span class="lifetime">&#39;a</span>&gt; ArgItem {
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; ArgItem {
     <span class="doccomment">/// create a new argument
-    </span><span class="kw">pub fn </span>new(name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str, alias: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str) -&gt; ArgItem  {
-        ArgItem{
+    </span><span class="kw">pub fn </span>new(name: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str, alias: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str) -&gt; ArgItem {
+        ArgItem {
             name: name.to_string(),
-            alias: <span class="macro">vec!</span>[alias.to_owned(),],
+            alias: <span class="macro">vec!</span>[alias.to_owned()],
             ..Default::default()
         }
     }
 
-    <span class="kw">pub fn </span>set_detail(<span class="kw-2">mut </span><span class="self">self</span>, detail: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str) -&gt; <span class="self">Self</span>{
+    <span class="kw">pub fn </span>set_detail(<span class="kw-2">mut </span><span class="self">self</span>, detail: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.detail = detail.to_string();
         <span class="self">self
     </span>}
 
-    <span class="kw">pub fn </span>set_default(<span class="kw-2">mut </span><span class="self">self</span>, default: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str, required: bool) -&gt; <span class="self">Self</span>{
+    <span class="kw">pub fn </span>set_default(<span class="kw-2">mut </span><span class="self">self</span>, default: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str, required: bool) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.default = default.to_string();
         <span class="self">self</span>.required = required;
         <span class="self">self
     </span>}
 
-    <span class="kw">pub fn </span>set_argtype(<span class="kw-2">mut </span><span class="self">self</span>, arg_type: ArgType) -&gt; <span class="self">Self</span>{
+    <span class="kw">pub fn </span>set_argtype(<span class="kw-2">mut </span><span class="self">self</span>, arg_type: ArgType) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.arg_type = arg_type;
         <span class="self">self
     </span>}
 
-    <span class="kw">pub fn </span>add_alias(<span class="kw-2">mut </span><span class="self">self</span>, alias: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str) -&gt; <span class="self">Self</span>{
+    <span class="kw">pub fn </span>add_alias(<span class="kw-2">mut </span><span class="self">self</span>, alias: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str) -&gt; <span class="self">Self </span>{
         <span class="self">self</span>.alias.push(alias.to_owned());
         <span class="self">self
     </span>}
-
 }
-
-
-
-
-
-
-
-
 
 <span class="attr">#[derive(Clone, Debug)]
 </span><span class="kw">pub enum </span>ArgValue {
     STR(String),
-    VEC(Vec&lt;String&gt;)
+    VEC(Vec&lt;String&gt;),
 }
 
 <span class="attr">#[doc(hidden)]
@@ -416,34 +397,31 @@
     <span class="kw">fn </span>match_type(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;String, anyhow::Error&gt; {
         <span class="kw">match </span><span class="self">self </span>{
             ArgValue::STR(v) =&gt; <span class="prelude-val">Ok</span>(v.clone()),
-            <span class="kw">_ </span>=&gt; { <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">anyhow!</span>(<span class="string">&quot;Argument is not scalar&quot;</span>)) },
+            <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">anyhow!</span>(<span class="string">&quot;Argument is not scalar&quot;</span>)),
         }
     }
 
     <span class="kw">pub fn </span>get_bool(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;bool, anyhow::Error&gt; {
-        <span class="kw">let </span>v = <span class="self">self</span>.match_type()<span class="question-mark">?
+        <span class="kw">let </span>v = <span class="self">self
+            </span>.match_type()<span class="question-mark">?
             </span>.parse::&lt;bool&gt;()
-            .unwrap_or_else( 
-                |err| <span class="macro">panic!</span>(<span class="string">&quot;Problem parsing arguments{}&quot;</span>, err)
-            );
+            .unwrap_or_else(|err| <span class="macro">panic!</span>(<span class="string">&quot;Problem parsing arguments{}&quot;</span>, err));
         <span class="prelude-val">Ok</span>(v)
     }
 
     <span class="kw">pub fn </span>get_f32(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;f32, anyhow::Error&gt; {
-        <span class="kw">let </span>v = <span class="self">self</span>.match_type()<span class="question-mark">?
+        <span class="kw">let </span>v = <span class="self">self
+            </span>.match_type()<span class="question-mark">?
             </span>.parse::&lt;f32&gt;()
-            .unwrap_or_else( 
-                |err| <span class="macro">panic!</span>(<span class="string">&quot;Problem parsing arguments{}&quot;</span>, err)
-            );
+            .unwrap_or_else(|err| <span class="macro">panic!</span>(<span class="string">&quot;Problem parsing arguments{}&quot;</span>, err));
         <span class="prelude-val">Ok</span>(v)
     }
 
     <span class="kw">pub fn </span>get_i32(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;i32, anyhow::Error&gt; {
-        <span class="kw">let </span>v = <span class="self">self</span>.match_type()<span class="question-mark">?
+        <span class="kw">let </span>v = <span class="self">self
+            </span>.match_type()<span class="question-mark">?
             </span>.parse::&lt;i32&gt;()
-            .unwrap_or_else( 
-                |err| <span class="macro">panic!</span>(<span class="string">&quot;Problem parsing arguments{}&quot;</span>, err)
-            );
+            .unwrap_or_else(|err| <span class="macro">panic!</span>(<span class="string">&quot;Problem parsing arguments{}&quot;</span>, err));
         <span class="prelude-val">Ok</span>(v)
     }
 
@@ -455,7 +433,7 @@
     <span class="kw">pub fn </span>get_vec(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;Vec&lt;String&gt;, anyhow::Error&gt; {
         <span class="kw">match </span><span class="self">self </span>{
             ArgValue::VEC(v) =&gt; <span class="prelude-val">Ok</span>(v.clone()),
-            <span class="kw">_ </span>=&gt; { <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">anyhow!</span>(<span class="string">&quot;Argument is not vector&quot;</span>)) },
+            <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">anyhow!</span>(<span class="string">&quot;Argument is not vector&quot;</span>)),
         }
     }
 
@@ -463,12 +441,10 @@
     </span><span class="kw">pub fn </span>push_vec(<span class="kw-2">&amp;mut </span><span class="self">self</span>, item: String) -&gt; <span class="prelude-ty">Result</span>&lt;(), anyhow::Error&gt; {
         <span class="kw">match </span><span class="self">self </span>{
             ArgValue::VEC(v) =&gt; v.push(item),
-            <span class="kw">_ </span>=&gt; { <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">anyhow!</span>(<span class="string">&quot;Argument is not vector&quot;</span>)) },
+            <span class="kw">_ </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">anyhow!</span>(<span class="string">&quot;Argument is not vector&quot;</span>)),
         };
         <span class="prelude-val">Ok</span>(())
     }
-
 }
-
 </code></pre></div>
 </section></main><div id="rustdoc-vars" data-root-path="../../" data-static-root-path="../../static.files/" data-current-crate="argtool" data-themes="" data-resource-suffix="" data-rustdoc-version="1.69.0 (84c898d65 2023-04-16)" data-search-js="search-8a59a8356673ec1f.js" data-settings-js="settings-f0c5c39777a9a2f6.js" data-settings-css="settings-0bcba95ff279c1db.css" ></div></body></html>

@@ -16,5 +16,5 @@ cp -r target/doc docs
 git add docs 
 git add -u
 git commit -m "add docs" 
-
+git rebase -i HEAD~2 
 

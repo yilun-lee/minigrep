@@ -99,20 +99,20 @@
 <a href="#99" id="99">99</a>
 <a href="#100" id="100">100</a>
 <a href="#101" id="101">101</a>
-</pre><pre class="rust"><code><span class="kw">use </span>std::io::{<span class="self">self</span>, BufRead, BufReader, Lines};
-<span class="kw">use </span>std::fs::File;
+</pre><pre class="rust"><code><span class="kw">use </span>anyhow::anyhow;
 <span class="kw">use </span>std::collections::LinkedList;
-<span class="kw">use </span>anyhow::anyhow;
+<span class="kw">use </span>std::fs::File;
+<span class="kw">use </span>std::io::{<span class="self">self</span>, BufRead, BufReader, Lines};
 <span class="kw">use </span>thiserror;
 
 <span class="kw">use </span><span class="kw">super</span>::logger::LinePrint;
 
 <span class="doccomment">/// My own error
-/// 
+///
 </span><span class="attr">#[derive(thiserror::Error, Clone, Debug, PartialEq)]
 </span><span class="kw">pub enum </span>MyErrors {
-    <span class="doccomment">/// 
-    </span>EndOfFile
+    <span class="doccomment">///
+    </span>EndOfFile,
 }
 
 <span class="kw">impl </span>std::fmt::Display <span class="kw">for </span>MyErrors {
@@ -131,16 +131,14 @@
     <span class="prelude-val">Ok</span>(cursor.lines())
 }
 
-
-
-<span class="kw">pub struct  </span>FileReader {
+<span class="kw">pub struct </span>FileReader {
     <span class="kw">pub </span>file_path: String,
     <span class="kw">pub </span>buf_reader: LineBuf,
     <span class="kw">pub </span>buffer: LinkedList&lt;String&gt;,
     <span class="kw">pub </span>line: String,
-    
+
     <span class="doccomment">/// line number index
-    </span><span class="kw">pub </span>cc: i32, 
+    </span><span class="kw">pub </span>cc: i32,
     <span class="doccomment">/// buffer size, the size to show before matched line
     </span><span class="kw">pub </span>ahead_size: i32,
     <span class="doccomment">/// the size to show after matched line
@@ -148,13 +146,16 @@
     </span><span class="kw">pub </span>behind_size: i32,
 }
 
-<span class="kw">impl </span>&lt;<span class="lifetime">&#39;a</span>&gt;  FileReader {
+<span class="kw">impl</span>&lt;<span class="lifetime">&#39;a</span>&gt; FileReader {
     <span class="doccomment">/// create a new FileReader instance
     /// * `file_path` - File path
-    /// * `ahead_size` - buffer size ahead 
-    /// * `behind_size` -  size after match line 
-    </span><span class="kw">pub fn </span>new(file_path: String, ahead_size: i32, behind_size: i32) -&gt; <span class="prelude-ty">Result</span>&lt;FileReader, anyhow::Error&gt; {
-
+    /// * `ahead_size` - buffer size ahead
+    /// * `behind_size` -  size after match line
+    </span><span class="kw">pub fn </span>new(
+        file_path: String,
+        ahead_size: i32,
+        behind_size: i32,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;FileReader, anyhow::Error&gt; {
         <span class="kw">let </span>file_reader = FileReader {
             file_path: file_path.clone(),
             buf_reader: read_file(file_path)<span class="question-mark">?</span>,
@@ -163,16 +164,15 @@
 
             cc: <span class="number">0</span>,
             ahead_size: ahead_size,
-            behind_size: behind_size
+            behind_size: behind_size,
         };
         <span class="prelude-val">Ok</span>(file_reader)
     }
-    
+
     <span class="doccomment">/// A next function for custom iterator
     /// want to use borrow as output here so we implement Iterator instead of use std one.
     /// (ref link)`&lt;http://lukaskalbertodt.github.io/2018/08/03/solving-the-generalized-streaming-iterator-problem-without-gats.html#a-better-iolines&gt;`
-    </span><span class="kw">pub fn </span>next (<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str, anyhow::Error&gt;{
-
+    </span><span class="kw">pub fn </span>next(<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span><span class="kw-2">mut </span><span class="self">self</span>) -&gt; <span class="prelude-ty">Result</span>&lt;<span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str, anyhow::Error&gt; {
         <span class="comment">// push the previous line
         </span><span class="kw">if </span><span class="self">self</span>.cc &gt; <span class="number">0 </span>{
             <span class="self">self</span>.buffer.push_back(<span class="self">self</span>.line.clone());
@@ -180,13 +180,14 @@
 
         <span class="self">self</span>.cc += <span class="number">1</span>;
         <span class="kw">if </span><span class="self">self</span>.cc &gt; <span class="self">self</span>.ahead_size + <span class="number">1 </span>{
-            <span class="self">self</span>.buffer.pop_front();} 
+            <span class="self">self</span>.buffer.pop_front();
+        }
 
         <span class="self">self</span>.line = <span class="kw">match </span><span class="self">self</span>.buf_reader.next() {
             <span class="prelude-val">Some</span>(v) =&gt; v<span class="question-mark">?</span>,
             <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">anyhow!</span>(MyErrors::EndOfFile)),
         };
-    
+
         <span class="prelude-val">Ok</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.line)
     }
 
@@ -196,9 +197,8 @@
         <span class="kw">for </span>i <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.buffer {
             line_printer.print(i, cc <span class="kw">as </span>usize, <span class="kw-2">&amp;</span><span class="self">self</span>.file_path);
             cc -= <span class="number">1</span>;
-        };
+        }
     }
 }
-
 </code></pre></div>
 </section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="grep" data-themes="" data-resource-suffix="" data-rustdoc-version="1.69.0 (84c898d65 2023-04-16)" data-search-js="search-8a59a8356673ec1f.js" data-settings-js="settings-f0c5c39777a9a2f6.js" data-settings-css="settings-0bcba95ff279c1db.css" ></div></body></html>

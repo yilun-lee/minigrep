@@ -2,7 +2,7 @@
 <p>Provides an argparser with several argument type ( argtype )
 there are four argtype:</p>
 <ul>
-<li>Basic argtype </li>
+<li>Basic argtype</li>
 <li>List argtype</li>
 <li>Positional argtype</li>
 <li>Flag argtype</li>
@@ -13,12 +13,12 @@ Not opitmized yet</p>
 <div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">use </span>argtool::ArgItem;
 <span class="kw">use </span>argtool::ArgGroup;
 <span class="kw">use </span>argtool::ArgType;
- 
+
 <span class="comment">// create argument     
 </span><span class="kw">let </span>name = String::from(<span class="string">&quot;Test&quot;</span>);
 <span class="kw">let </span>desciption = String::from(<span class="string">&quot;This is a Test&quot;</span>);
 <span class="kw">let </span><span class="kw-2">mut </span>my_arg_table: ArgGroup = ArgGroup::new(name, desciption);
- 
+
 <span class="comment">// add arg
 </span>my_arg_table.add_arg(
    ArgItem::new(<span class="string">&quot;line&quot;</span>, <span class="string">&quot;n&quot;</span>)
@@ -26,31 +26,31 @@ Not opitmized yet</p>
    .set_default(<span class="string">&quot;-1&quot;</span>, <span class="bool-val">false</span>)
    .set_argtype(ArgType::BaseType)
     ).unwrap();
- 
+
 my_arg_table.add_arg(
     ArgItem::new(<span class="string">&quot;ignorecase&quot;</span>, <span class="string">&quot;i&quot;</span>)
     .set_detail(<span class="string">&quot;ignorecase or not &quot;</span>)
     .set_default(<span class="string">&quot;false&quot;</span>, <span class="bool-val">false</span>)
     .set_argtype(ArgType::FlagType)
     ).unwrap();
- 
+
 <span class="comment">// you can print it as help page
 </span><span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, my_arg_table);
- 
+
 <span class="comment">// define mock input
 </span><span class="kw">let </span>mystr: String = String::from(<span class="string">&quot;/lib.rs -n 3 -i &quot;</span>);
 <span class="kw">let </span>my_cmd_iter = mystr.split(<span class="string">&quot; &quot;</span>).into_iter();
- 
+
 <span class="comment">// parse
 </span><span class="kw">let </span>my_arg = my_arg_table.parse(my_cmd_iter).unwrap();
 <span class="macro">println!</span>(<span class="string">&quot;{:#?}&quot;</span>, my_arg);
- 
-<span class="comment">// get value 
+
+<span class="comment">// get value
 </span><span class="macro">assert_eq!</span>(<span class="bool-val">true</span>, my_arg[<span class="string">&quot;ignorecase&quot;</span>].get_bool().unwrap());
 <span class="macro">assert_eq!</span>(<span class="number">3</span>, my_arg_table.get_i32(<span class="string">&quot;line&quot;</span>).unwrap());</code></pre></div>
 <h2 id="arg-type"><a href="#arg-type">Arg Type</a></h2>
 <ul>
-<li>Basic argtype </li>
+<li>Basic argtype</li>
 </ul>
 <div class="example-wrap"><pre class="language-bash"><code>./lib.rs -a &quot;One&quot;
 </code></pre></div>
@@ -67,7 +67,7 @@ my_arg_table.add_arg(
 <ul>
 <li>Flag argtype</li>
 </ul>
-<div class="example-wrap"><pre class="language-bash"><code>./lib.rs -a 
+<div class="example-wrap"><pre class="language-bash"><code>./lib.rs -a
 </code></pre></div>
 <p>For detail please check <a href="argitem/enum.ArgType.html" title="enum argtool::argitem::ArgType">ArgType</a></p>
 <h2 id="value-type"><a href="#value-type">Value Type</a></h2>
@@ -92,7 +92,7 @@ They will be parse only when you want to get them out of <a href="argroup/struct
 <li>String</li>
 <li>i32</li>
 <li>f32</li>
-<li>bool </li>
+<li>bool</li>
 <li>Vec&lt;String&gt; (For List Argument only)</li>
 </ul>
 </div></details><h2 id="reexports" class="small-section-header"><a href="#reexports">Re-exports</a></h2><ul class="item-table"><li><div class="item-name" id="reexport.ArgItem"><code>pub use argitem::<a class="struct" href="argitem/struct.ArgItem.html" title="struct argtool::argitem::ArgItem">ArgItem</a>;</code></div></li><li><div class="item-name" id="reexport.ArgType"><code>pub use argitem::<a class="enum" href="argitem/enum.ArgType.html" title="enum argtool::argitem::ArgType">ArgType</a>;</code></div></li><li><div class="item-name" id="reexport.ArgValue"><code>pub use argitem::<a class="enum" href="argitem/enum.ArgValue.html" title="enum argtool::argitem::ArgValue">ArgValue</a>;</code></div></li><li><div class="item-name" id="reexport.ArgGroup"><code>pub use argroup::<a class="struct" href="argroup/struct.ArgGroup.html" title="struct argtool::argroup::ArgGroup">ArgGroup</a>;</code></div></li></ul><h2 id="modules" class="small-section-header"><a href="#modules">Modules</a></h2><ul class="item-table"><li><div class="item-name"><a class="mod" href="argitem/index.html" title="mod argtool::argitem">argitem</a></div></li><li><div class="item-name"><a class="mod" href="argroup/index.html" title="mod argtool::argroup">argroup</a></div></li></ul></section></div></main><div id="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="argtool" data-themes="" data-resource-suffix="" data-rustdoc-version="1.69.0 (84c898d65 2023-04-16)" data-search-js="search-8a59a8356673ec1f.js" data-settings-js="settings-f0c5c39777a9a2f6.js" data-settings-css="settings-0bcba95ff279c1db.css" ></div></body></html>
