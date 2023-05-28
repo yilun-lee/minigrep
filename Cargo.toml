@@ -3,5 +3,4 @@
 members = [
     "argtool",
     "grep",
-    "matmult",
 ]

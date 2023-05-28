@@ -63,9 +63,6 @@
 <a href="#63" id="63">63</a>
 <a href="#64" id="64">64</a>
 <a href="#65" id="65">65</a>
-<a href="#66" id="66">66</a>
-<a href="#67" id="67">67</a>
-<a href="#68" id="68">68</a>
 </pre><pre class="rust"><code>
 
 <span class="kw">use </span>std::borrow::Cow;
@@ -89,8 +86,6 @@
 </span><span class="kw">pub struct </span>RegexMatcher {
     <span class="doccomment">/// Regex itself 
     </span>re: Regex,
-    <span class="doccomment">/// ignore case or not
-    </span>ignorecase: bool,
 }
 
 
@@ -104,7 +99,6 @@
         }
         <span class="prelude-val">Ok </span>(RegexMatcher {
             re: Regex::new(<span class="kw-2">&amp;</span>new_pattern)<span class="question-mark">?</span>,
-            ignorecase: ignorecase,
         })
     }
 }

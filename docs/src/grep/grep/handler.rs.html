@@ -106,113 +106,285 @@
 <a href="#106" id="106">106</a>
 <a href="#107" id="107">107</a>
 <a href="#108" id="108">108</a>
+<a href="#109" id="109">109</a>
+<a href="#110" id="110">110</a>
+<a href="#111" id="111">111</a>
+<a href="#112" id="112">112</a>
+<a href="#113" id="113">113</a>
+<a href="#114" id="114">114</a>
+<a href="#115" id="115">115</a>
+<a href="#116" id="116">116</a>
+<a href="#117" id="117">117</a>
+<a href="#118" id="118">118</a>
+<a href="#119" id="119">119</a>
+<a href="#120" id="120">120</a>
+<a href="#121" id="121">121</a>
+<a href="#122" id="122">122</a>
+<a href="#123" id="123">123</a>
+<a href="#124" id="124">124</a>
+<a href="#125" id="125">125</a>
+<a href="#126" id="126">126</a>
+<a href="#127" id="127">127</a>
+<a href="#128" id="128">128</a>
+<a href="#129" id="129">129</a>
+<a href="#130" id="130">130</a>
+<a href="#131" id="131">131</a>
+<a href="#132" id="132">132</a>
+<a href="#133" id="133">133</a>
+<a href="#134" id="134">134</a>
+<a href="#135" id="135">135</a>
+<a href="#136" id="136">136</a>
+<a href="#137" id="137">137</a>
+<a href="#138" id="138">138</a>
+<a href="#139" id="139">139</a>
+<a href="#140" id="140">140</a>
+<a href="#141" id="141">141</a>
+<a href="#142" id="142">142</a>
+<a href="#143" id="143">143</a>
+<a href="#144" id="144">144</a>
+<a href="#145" id="145">145</a>
+<a href="#146" id="146">146</a>
+<a href="#147" id="147">147</a>
+<a href="#148" id="148">148</a>
+<a href="#149" id="149">149</a>
+<a href="#150" id="150">150</a>
+<a href="#151" id="151">151</a>
+<a href="#152" id="152">152</a>
+<a href="#153" id="153">153</a>
+<a href="#154" id="154">154</a>
+<a href="#155" id="155">155</a>
+<a href="#156" id="156">156</a>
+<a href="#157" id="157">157</a>
+<a href="#158" id="158">158</a>
+<a href="#159" id="159">159</a>
+<a href="#160" id="160">160</a>
+<a href="#161" id="161">161</a>
+<a href="#162" id="162">162</a>
+<a href="#163" id="163">163</a>
+<a href="#164" id="164">164</a>
+<a href="#165" id="165">165</a>
+<a href="#166" id="166">166</a>
+<a href="#167" id="167">167</a>
+<a href="#168" id="168">168</a>
+<a href="#169" id="169">169</a>
+<a href="#170" id="170">170</a>
+<a href="#171" id="171">171</a>
+<a href="#172" id="172">172</a>
+<a href="#173" id="173">173</a>
+<a href="#174" id="174">174</a>
+<a href="#175" id="175">175</a>
+<a href="#176" id="176">176</a>
+<a href="#177" id="177">177</a>
+<a href="#178" id="178">178</a>
+<a href="#179" id="179">179</a>
+<a href="#180" id="180">180</a>
+<a href="#181" id="181">181</a>
+<a href="#182" id="182">182</a>
+<a href="#183" id="183">183</a>
+<a href="#184" id="184">184</a>
+<a href="#185" id="185">185</a>
+<a href="#186" id="186">186</a>
+<a href="#187" id="187">187</a>
+<a href="#188" id="188">188</a>
+<a href="#189" id="189">189</a>
+<a href="#190" id="190">190</a>
+<a href="#191" id="191">191</a>
+<a href="#192" id="192">192</a>
+<a href="#193" id="193">193</a>
+<a href="#194" id="194">194</a>
 </pre><pre class="rust"><code>
 
 <span class="kw">use </span>std::borrow::Cow;
-
-<span class="kw">use super</span>::{matcher::PatternMatch};
+<span class="kw">use </span>anyhow::Result;
+<span class="kw">use </span><span class="kw">super</span>::matcher::{PatternMatch,RegexMatcher};
 <span class="kw">use </span><span class="kw">super</span>::str_const::{COLOER_RESET,RED_START};
 
 
 
-<span class="doccomment">/// trait for match a line and return bool, for match only
-/// May be more efficinet
-/// not used for now
-</span><span class="kw">pub trait </span>MatchLine {
-    <span class="kw">fn </span>match_line(<span class="kw-2">&amp;</span><span class="self">self</span>, line: <span class="kw-2">&amp;</span>str,) -&gt; bool;
+
+<span class="kw">pub trait </span>Grep {
+    <span class="kw">fn </span>grep_one_line(<span class="kw-2">&amp;</span><span class="self">self</span>, line: <span class="kw-2">&amp;</span>str,) -&gt; (bool, String);
 }
 
-<span class="doccomment">/// trait for match a line and return bool and line
-/// This will clone line. For repalce and extractonly.
-</span><span class="kw">pub trait </span>ReplaceLine {
-    <span class="kw">fn </span>replace_line(<span class="kw-2">&amp;</span><span class="self">self</span>, line: <span class="kw-2">&amp;</span>str,) -&gt; (bool, String);
+<span class="kw">pub struct </span>GrepGroup {
+    match_list: Vec&lt;Box&lt;<span class="kw">dyn </span>PatternMatch&gt;&gt;,
+    color_flag: bool,
+
+    extract_list: Vec&lt;Box&lt;<span class="kw">dyn </span>PatternMatch&gt;&gt;,
+
+    replace_list: Vec&lt;Box&lt;<span class="kw">dyn </span>PatternMatch&gt;&gt;,
+    replace_tobe: Vec&lt;String&gt;,
+    replace_times: usize,
 }
 
-<span class="doccomment">/// for match mod
-</span><span class="kw">pub struct </span>LineMatcher {
-    <span class="kw">pub </span>matcher: Box&lt;<span class="kw">dyn </span>PatternMatch&gt;,
-}
+<span class="kw">impl </span>Grep <span class="kw">for </span>GrepGroup{
+    <span class="kw">fn </span>grep_one_line(<span class="kw-2">&amp;</span><span class="self">self</span>, line: <span class="kw-2">&amp;</span>str,) -&gt; (bool, String){
+        <span class="kw">let </span><span class="kw-2">mut </span>match_flag: bool = <span class="bool-val">false</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>my_str: String = line.to_owned();
 
-<span class="doccomment">/// did not clone line inside, but return an empty String
-</span><span class="kw">impl </span>&lt;<span class="lifetime">&#39;a</span>&gt; ReplaceLine <span class="kw">for </span>LineMatcher {
-    <span class="kw">fn </span>replace_line(<span class="kw-2">&amp;</span><span class="self">self</span>, line: <span class="kw-2">&amp;</span>str, ) -&gt; (bool, String) {
-        <span class="kw">return </span>(<span class="self">self</span>.matcher.contain(line), line.to_owned() )
+        <span class="comment">// match
+        </span><span class="kw">if </span><span class="self">self</span>.match_list.len() &gt; <span class="number">0</span>{
+            ( match_flag, my_str) = <span class="self">self</span>.match_line(line);
+            <span class="kw">if </span>! match_flag { <span class="kw">return </span>( <span class="bool-val">false</span>, my_str); };
+        };
+        <span class="comment">// extract
+        </span><span class="kw">if </span><span class="self">self</span>.extract_list.len() &gt; <span class="number">0</span>{
+            ( <span class="kw">_</span>, my_str ) = <span class="self">self</span>.extract_line(line);
+        };
+        <span class="comment">// replace
+        </span><span class="kw">if </span><span class="self">self</span>.replace_list.len() &gt; <span class="number">0</span>{
+            my_str = <span class="self">self</span>.replace_line(<span class="kw-2">&amp;</span>my_str);
+        };
+
+        <span class="kw">return </span>( match_flag, my_str);
+
     }
+
 }
 
-<span class="kw">pub struct </span>LineExtractor {
-    <span class="kw">pub </span>matcher: Box&lt;<span class="kw">dyn </span>PatternMatch&gt;,
-}
 
-<span class="kw">impl </span>&lt;<span class="lifetime">&#39;a</span>&gt; ReplaceLine <span class="kw">for </span>LineExtractor {
-    <span class="kw">fn </span>replace_line(<span class="kw-2">&amp;</span><span class="self">self</span>, line: <span class="kw-2">&amp;</span>str, ) -&gt; (bool, String) {
-        <span class="kw">let </span>match_vec = <span class="self">self</span>.matcher.extract(line);
-        <span class="kw">let </span><span class="kw-2">mut </span>my_str = String::from(<span class="string">&quot;&quot;</span>);
-        <span class="kw">let </span><span class="kw-2">mut </span>cc: usize = <span class="number">0</span>;
-        <span class="kw">for </span>(i,j) <span class="kw">in </span><span class="kw-2">&amp;</span>match_vec{
-            <span class="kw">if </span>cc &gt;= <span class="kw-2">*</span>i {<span class="kw">continue</span>;}
-            <span class="kw">if </span>cc == <span class="number">0 </span>{
-                my_str = my_str + <span class="kw-2">&amp;</span>line[<span class="kw-2">*</span>i..<span class="kw-2">*</span>j]
-            }<span class="kw">else </span>{
-                my_str = my_str + 
-                <span class="string">&quot;\n&quot; </span>+
-                <span class="kw-2">&amp;</span>line[<span class="kw-2">*</span>i..<span class="kw-2">*</span>j];
+<span class="doccomment">/// pub method for GrepGroup
+</span><span class="kw">impl </span>GrepGroup {
+    <span class="kw">pub fn </span>from_re_group(
+        expr: Vec&lt;String&gt;,
+        extract_expr: Vec&lt;String&gt;,
+        replace_expr: Vec&lt;String&gt;,
+        replacer: Vec&lt;String&gt;,
+        replace_times: usize,
+        ignorecase: bool,
+        color_flag: bool,
+    ) -&gt; <span class="prelude-ty">Result</span>&lt;GrepGroup&gt; {
+
+        <span class="kw">let </span><span class="kw-2">mut </span>match_list: Vec&lt;Box&lt;<span class="kw">dyn </span>PatternMatch&gt;&gt; = <span class="macro">vec!</span>[];
+        <span class="kw">for </span>i <span class="kw">in </span><span class="kw-2">&amp;</span>expr {
+            <span class="kw">let </span>my_re = RegexMatcher::new(i, ignorecase )<span class="question-mark">?</span>;
+            match_list.push(Box::new(my_re));
+        };
+
+        <span class="kw">let </span><span class="kw-2">mut </span>extract_list: Vec&lt;Box&lt;<span class="kw">dyn </span>PatternMatch&gt;&gt; = <span class="macro">vec!</span>[];
+        <span class="kw">for </span>i <span class="kw">in </span><span class="kw-2">&amp;</span>extract_expr {
+            <span class="kw">let </span>my_re = RegexMatcher::new(i, ignorecase )<span class="question-mark">?</span>;
+            extract_list.push(Box::new(my_re));
+        };
+
+        <span class="kw">let </span><span class="kw-2">mut </span>replace_list: Vec&lt;Box&lt;<span class="kw">dyn </span>PatternMatch&gt;&gt; = <span class="macro">vec!</span>[];
+        <span class="kw">for </span>i <span class="kw">in </span><span class="kw-2">&amp;</span>replace_expr {
+            <span class="kw">let </span>my_re = RegexMatcher::new(i, ignorecase )<span class="question-mark">?</span>;
+            replace_list.push(Box::new(my_re));
+        };
+
+        <span class="kw">let </span>my_grep_group = GrepGroup{
+            match_list: match_list,
+            color_flag: color_flag,
+        
+            extract_list: extract_list,
+        
+            replace_list: replace_list,
+            replace_tobe: replacer,
+            replace_times: replace_times,        
+        };
+        <span class="prelude-val">Ok</span>(my_grep_group)
+    }
+
+    <span class="kw">pub fn </span>match_line(<span class="kw-2">&amp;</span><span class="self">self</span>, line: <span class="kw-2">&amp;</span>str,) -&gt; (bool,String) {
+        <span class="kw">if </span>! <span class="self">self</span>.color_flag {
+            <span class="kw">let </span><span class="kw-2">mut </span>flag: bool = <span class="bool-val">true</span>;
+            <span class="kw">for </span>i <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.match_list{
+                flag = i.contain(line);
+                <span class="kw">if </span>! flag {<span class="kw">break</span>;}
             };
-            cc = <span class="kw-2">*</span>j;
-        }
-        <span class="kw">if </span>match_vec.len() ==  <span class="number">0</span>{
-            my_str = my_str + <span class="kw-2">&amp;</span>line
-        }
+            <span class="kw">return </span>(flag, line.to_owned());
+            
+        } <span class="kw">else </span>{
 
-        <span class="kw">return </span>(match_vec.len()&gt; <span class="number">0</span>, my_str )
+            <span class="kw">let </span>target_vec = <span class="self">self</span>.aggregate_extract(line, <span class="kw-2">&amp;</span><span class="self">self</span>.match_list);
+            <span class="kw">if </span>! target_vec.iter().any(|i: <span class="kw-2">&amp;</span>bool| <span class="kw-2">*</span>i) {
+                <span class="kw">return </span>(<span class="bool-val">false</span>, line.to_owned() )
+            } 
+            <span class="kw">let </span>my_str = <span class="self">self</span>.paint_line(line, target_vec, <span class="bool-val">false</span>);
+            <span class="kw">return </span>(<span class="bool-val">true</span>, my_str);
+        }
     }
+
+    <span class="kw">pub fn </span>extract_line(<span class="kw-2">&amp;</span><span class="self">self</span>, line: <span class="kw-2">&amp;</span>str) -&gt; (bool,String) {
+        <span class="kw">let </span>target_vec = <span class="self">self</span>.aggregate_extract(line, <span class="kw-2">&amp;</span><span class="self">self</span>.extract_list);
+        <span class="kw">if </span>! target_vec.iter().any(|i: <span class="kw-2">&amp;</span>bool| <span class="kw-2">*</span>i) {
+            <span class="kw">return </span>(<span class="bool-val">false</span>, line.to_owned() )
+        } 
+        <span class="kw">let </span>my_str = <span class="self">self</span>.paint_line(line, target_vec, <span class="bool-val">true</span>);
+        <span class="kw">return </span>(<span class="bool-val">true</span>, my_str);
+    }
+
+    <span class="kw">pub fn </span>replace_line(<span class="kw-2">&amp;</span><span class="self">self</span>, line: <span class="kw-2">&amp;</span>str, ) -&gt; String {
+        <span class="kw">let </span><span class="kw-2">mut </span>my_str: String = line.to_owned();
+        <span class="kw">let </span><span class="kw-2">mut </span>cc = <span class="number">0</span>;
+        <span class="kw">for </span>i <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.replace_list {
+            <span class="kw">match </span>i.replace(<span class="kw-2">&amp;</span>my_str, <span class="kw-2">&amp;</span><span class="self">self</span>.replace_tobe[cc], <span class="self">self</span>.replace_times) {
+                Cow::Borrowed(<span class="kw">_</span>) =&gt; <span class="kw">continue</span>,
+                Cow::Owned(v) =&gt;  my_str = v,
+            }
+            cc+=<span class="number">1
+        </span>};
+        my_str
+    }
+
 }
 
 
-<span class="kw">pub struct </span>LinePainter {
-    <span class="kw">pub </span>matcher: Box&lt;<span class="kw">dyn </span>PatternMatch&gt;,
-}
+<span class="doccomment">/// private method for GrepGroup
+</span><span class="kw">impl </span>GrepGroup {
 
-<span class="kw">impl </span>&lt;<span class="lifetime">&#39;a</span>&gt; ReplaceLine <span class="kw">for </span>LinePainter {
-    <span class="kw">fn </span>replace_line(<span class="kw-2">&amp;</span><span class="self">self</span>, line: <span class="kw-2">&amp;</span>str, ) -&gt; (bool, String) {
-        <span class="kw">let </span>match_vec = <span class="self">self</span>.matcher.extract(line);
+    <span class="kw">fn </span>aggregate_extract(<span class="kw-2">&amp;</span><span class="self">self</span>, line: <span class="kw-2">&amp;</span>str, extract_list: <span class="kw-2">&amp;</span>Vec&lt;Box&lt;<span class="kw">dyn </span>PatternMatch&gt;&gt;) -&gt; Vec&lt;bool&gt;{
+
+        <span class="kw">let </span><span class="kw-2">mut </span>target_vec: Vec&lt;bool&gt; = <span class="macro">vec!</span>[<span class="bool-val">false</span>; line.len()];
+
+        <span class="kw">for </span>matcher <span class="kw">in </span>extract_list{
+
+            <span class="kw">let </span>match_vec = matcher.extract(line);
+            <span class="kw">for </span>(i, j) <span class="kw">in </span>match_vec {
+                <span class="kw">for </span>k <span class="kw">in </span>i..j {
+                    target_vec[k] = <span class="bool-val">true</span>;
+                };
+            };
+        };
+
+        <span class="kw">return </span>target_vec;
+    }
+
+    <span class="kw">fn </span>paint_line(<span class="kw-2">&amp;</span><span class="self">self</span>, line: <span class="kw-2">&amp;</span>str, target_vec: Vec&lt;bool&gt;, extract_flag: bool) -&gt; String{
+
         <span class="kw">let </span><span class="kw-2">mut </span>my_str = String::from(<span class="string">&quot;&quot;</span>);
-        <span class="kw">let </span><span class="kw-2">mut </span>cc: usize = <span class="number">0</span>;
-        <span class="kw">for </span>(i,j) <span class="kw">in </span><span class="kw-2">&amp;</span>match_vec{
-            <span class="kw">if </span>cc &gt;= <span class="kw-2">*</span>i {<span class="kw">continue</span>;}
-            my_str = my_str + 
-                <span class="kw-2">&amp;</span>line[cc..<span class="kw-2">*</span>i] +
-                RED_START +
-                <span class="kw-2">&amp;</span>line[<span class="kw-2">*</span>i..<span class="kw-2">*</span>j] +
-                COLOER_RESET;
-            cc = <span class="kw-2">*</span>j;
+        <span class="kw">let </span><span class="kw-2">mut </span>cc: usize = <span class="number">1</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>start: usize = <span class="number">0</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>end: usize = <span class="number">0</span>;
+        <span class="kw">let </span><span class="kw-2">mut </span>last_end: usize = <span class="number">0</span>;
+        <span class="kw">for </span>flag <span class="kw">in </span><span class="kw-2">&amp;</span>target_vec {
+            <span class="kw">if </span><span class="kw-2">*</span>flag {
+                <span class="comment">// only end mv forward
+            </span>} <span class="kw">else </span>{
+                <span class="kw">if </span>start != end {
+                    <span class="kw">if </span>!extract_flag {
+                        my_str = my_str + <span class="kw-2">&amp;</span>line[last_end..start] +
+                            RED_START + <span class="kw-2">&amp;</span>line[start..end] +COLOER_RESET;
+                        last_end = end;
+                    } <span class="kw">else </span>{
+                        <span class="kw">if </span>my_str.len() == <span class="number">0 </span>{ my_str = my_str + <span class="kw-2">&amp;</span>line[start..end];}
+                        <span class="kw">else </span>{ my_str = my_str + <span class="string">&quot;\n&quot; </span>+ <span class="kw-2">&amp;</span>line[start..end] } }
+                }
+                start = cc;
+            }
+            end = cc;
+            cc += <span class="number">1</span>;
         }
-        <span class="kw">if </span>match_vec.len()&gt; <span class="number">0 </span>&amp;&amp; cc &lt; line.len() { 
-            my_str = my_str + <span class="kw-2">&amp;</span>line[cc..];
-        } <span class="kw">else if </span>match_vec.len() ==  <span class="number">0</span>{
-            my_str = my_str + <span class="kw-2">&amp;</span>line
-        }
 
-        <span class="kw">return </span>(match_vec.len()&gt; <span class="number">0</span>, my_str )
+        <span class="kw">if </span>last_end &lt;= cc &amp;&amp; !extract_flag { 
+            <span class="kw">if </span>start != end { my_str = my_str + <span class="kw-2">&amp;</span>line[last_end..start] + 
+                 RED_START + <span class="kw-2">&amp;</span>line[start..] + COLOER_RESET;}
+            <span class="kw">else </span>{ my_str = my_str + <span class="kw-2">&amp;</span>line[last_end..]; }
+        } 
+        <span class="kw">return </span>my_str
     }
+
 }
-
-<span class="doccomment">/// for replace mod
-</span><span class="kw">pub struct </span>LineReplacer &lt;<span class="lifetime">&#39;a</span>&gt;{
-    <span class="kw">pub </span>matcher: Box&lt;<span class="kw">dyn </span>PatternMatch&gt;,
-    <span class="kw">pub </span>substitute: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a </span>str,
-    <span class="kw">pub </span>times: usize,
-}
-
-
-<span class="kw">impl </span>&lt;<span class="lifetime">&#39;a</span>&gt; ReplaceLine <span class="kw">for </span>LineReplacer &lt;<span class="lifetime">&#39;a</span>&gt;{
-    <span class="kw">fn </span>replace_line(<span class="kw-2">&amp;</span><span class="self">self</span>, line: <span class="kw-2">&amp;</span>str, ) -&gt; (bool, String) {
-       <span class="kw">match </span><span class="self">self</span>.matcher.replace(line, <span class="self">self</span>.substitute, <span class="self">self</span>.times) {
-            Cow::Borrowed(v) =&gt; <span class="kw">return </span>(<span class="bool-val">false</span>, line.to_owned()),
-            Cow::Owned(v) =&gt; <span class="kw">return </span>(<span class="bool-val">true</span>, v),
-       }
-    }
-}
-
 </code></pre></div>
 </section></main><div id="rustdoc-vars" data-root-path="../../../" data-static-root-path="../../../static.files/" data-current-crate="grep" data-themes="" data-resource-suffix="" data-rustdoc-version="1.69.0 (84c898d65 2023-04-16)" data-search-js="search-8a59a8356673ec1f.js" data-settings-js="settings-f0c5c39777a9a2f6.js" data-settings-css="settings-0bcba95ff279c1db.css" ></div></body></html>

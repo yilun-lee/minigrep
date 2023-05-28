@@ -1,1 +1,1 @@
-window.ALL_CRATES = ["argtool","grep","matmult"];
+window.ALL_CRATES = ["argtool","grep"];

@@ -21,8 +21,6 @@ pub trait PatternMatch {
 pub struct RegexMatcher {
     /// Regex itself 
     re: Regex,
-    /// ignore case or not
-    ignorecase: bool,
 }
 
 
@@ -36,7 +34,6 @@ impl RegexMatcher {
         }
         Ok (RegexMatcher {
             re: Regex::new(&new_pattern)?,
-            ignorecase: ignorecase,
         })
     }
 }

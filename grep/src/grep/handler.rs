@@ -1,108 +1,194 @@
 
 
 use std::borrow::Cow;
-
-use super::{matcher::PatternMatch};
+use anyhow::Result;
+use super::matcher::{PatternMatch,RegexMatcher};
 use super::str_const::{COLOER_RESET,RED_START};
 
 
 
-/// trait for match a line and return bool, for match only
-/// May be more efficinet
-/// not used for now
-pub trait MatchLine {
-    fn match_line(&self, line: &str,) -> bool;
+
+pub trait Grep {
+    fn grep_one_line(&self, line: &str,) -> (bool, String);
 }
 
-/// trait for match a line and return bool and line
-/// This will clone line. For repalce and extractonly.
-pub trait ReplaceLine {
-    fn replace_line(&self, line: &str,) -> (bool, String);
+pub struct GrepGroup {
+    match_list: Vec<Box<dyn PatternMatch>>,
+    color_flag: bool,
+
+    extract_list: Vec<Box<dyn PatternMatch>>,
+
+    replace_list: Vec<Box<dyn PatternMatch>>,
+    replace_tobe: Vec<String>,
+    replace_times: usize,
 }
 
-/// for match mod
-pub struct LineMatcher {
-    pub matcher: Box<dyn PatternMatch>,
-}
+impl Grep for GrepGroup{
+    fn grep_one_line(&self, line: &str,) -> (bool, String){
+        let mut match_flag: bool = false;
+        let mut my_str: String = line.to_owned();
 
-/// did not clone line inside, but return an empty String
-impl <'a> ReplaceLine for LineMatcher {
-    fn replace_line(&self, line: &str, ) -> (bool, String) {
-        return (self.matcher.contain(line), line.to_owned() )
+        // match
+        if self.match_list.len() > 0{
+            ( match_flag, my_str) = self.match_line(line);
+            if ! match_flag { return ( false, my_str); };
+        };
+        // extract
+        if self.extract_list.len() > 0{
+            ( _, my_str ) = self.extract_line(line);
+        };
+        // replace
+        if self.replace_list.len() > 0{
+            my_str = self.replace_line(&my_str);
+        };
+
+        return ( match_flag, my_str);
+
     }
+
 }
 
-pub struct LineExtractor {
-    pub matcher: Box<dyn PatternMatch>,
-}
 
-impl <'a> ReplaceLine for LineExtractor {
-    fn replace_line(&self, line: &str, ) -> (bool, String) {
-        let match_vec = self.matcher.extract(line);
-        let mut my_str = String::from("");
-        let mut cc: usize = 0;
-        for (i,j) in &match_vec{
-            if cc >= *i {continue;}
-            if cc == 0 {
-                my_str = my_str + &line[*i..*j]
-            }else {
-                my_str = my_str + 
-                "\n" +
-                &line[*i..*j];
+/// pub method for GrepGroup
+impl GrepGroup {
+    pub fn from_re_group(
+        expr: Vec<String>,
+        extract_expr: Vec<String>,
+        replace_expr: Vec<String>,
+        replacer: Vec<String>,
+        replace_times: usize,
+        ignorecase: bool,
+        color_flag: bool,
+    ) -> Result<GrepGroup> {
+
+        let mut match_list: Vec<Box<dyn PatternMatch>> = vec![];
+        for i in &expr {
+            let my_re = RegexMatcher::new(i, ignorecase )?;
+            match_list.push(Box::new(my_re));
+        };
+
+        let mut extract_list: Vec<Box<dyn PatternMatch>> = vec![];
+        for i in &extract_expr {
+            let my_re = RegexMatcher::new(i, ignorecase )?;
+            extract_list.push(Box::new(my_re));
+        };
+
+        let mut replace_list: Vec<Box<dyn PatternMatch>> = vec![];
+        for i in &replace_expr {
+            let my_re = RegexMatcher::new(i, ignorecase )?;
+            replace_list.push(Box::new(my_re));
+        };
+
+        let my_grep_group = GrepGroup{
+            match_list: match_list,
+            color_flag: color_flag,
+        
+            extract_list: extract_list,
+        
+            replace_list: replace_list,
+            replace_tobe: replacer,
+            replace_times: replace_times,        
+        };
+        Ok(my_grep_group)
+    }
+
+    pub fn match_line(&self, line: &str,) -> (bool,String) {
+        if ! self.color_flag {
+            let mut flag: bool = true;
+            for i in &self.match_list{
+                flag = i.contain(line);
+                if ! flag {break;}
             };
-            cc = *j;
-        }
-        if match_vec.len() ==  0{
-            my_str = my_str + &line
-        }
+            return (flag, line.to_owned());
+            
+        } else {
 
-        return (match_vec.len()> 0, my_str )
+            let target_vec = self.aggregate_extract(line, &self.match_list);
+            if ! target_vec.iter().any(|i: &bool| *i) {
+                return (false, line.to_owned() )
+            } 
+            let my_str = self.paint_line(line, target_vec, false);
+            return (true, my_str);
+        }
     }
+
+    pub fn extract_line(&self, line: &str) -> (bool,String) {
+        let target_vec = self.aggregate_extract(line, &self.extract_list);
+        if ! target_vec.iter().any(|i: &bool| *i) {
+            return (false, line.to_owned() )
+        } 
+        let my_str = self.paint_line(line, target_vec, true);
+        return (true, my_str);
+    }
+
+    pub fn replace_line(&self, line: &str, ) -> String {
+        let mut my_str: String = line.to_owned();
+        let mut cc = 0;
+        for i in &self.replace_list {
+            match i.replace(&my_str, &self.replace_tobe[cc], self.replace_times) {
+                Cow::Borrowed(_) => continue,
+                Cow::Owned(v) =>  my_str = v,
+            }
+            cc+=1
+        };
+        my_str
+    }
+
 }
 
 
-pub struct LinePainter {
-    pub matcher: Box<dyn PatternMatch>,
-}
+/// private method for GrepGroup
+impl GrepGroup {
 
-impl <'a> ReplaceLine for LinePainter {
-    fn replace_line(&self, line: &str, ) -> (bool, String) {
-        let match_vec = self.matcher.extract(line);
+    fn aggregate_extract(&self, line: &str, extract_list: &Vec<Box<dyn PatternMatch>>) -> Vec<bool>{
+
+        let mut target_vec: Vec<bool> = vec![false; line.len()];
+
+        for matcher in extract_list{
+
+            let match_vec = matcher.extract(line);
+            for (i, j) in match_vec {
+                for k in i..j {
+                    target_vec[k] = true;
+                };
+            };
+        };
+
+        return target_vec;
+    }
+
+    fn paint_line(&self, line: &str, target_vec: Vec<bool>, extract_flag: bool) -> String{
+
         let mut my_str = String::from("");
-        let mut cc: usize = 0;
-        for (i,j) in &match_vec{
-            if cc >= *i {continue;}
-            my_str = my_str + 
-                &line[cc..*i] +
-                RED_START +
-                &line[*i..*j] +
-                COLOER_RESET;
-            cc = *j;
+        let mut cc: usize = 1;
+        let mut start: usize = 0;
+        let mut end: usize = 0;
+        let mut last_end: usize = 0;
+        for flag in &target_vec {
+            if *flag {
+                // only end mv forward
+            } else {
+                if start != end {
+                    if !extract_flag {
+                        my_str = my_str + &line[last_end..start] +
+                            RED_START + &line[start..end] +COLOER_RESET;
+                        last_end = end;
+                    } else {
+                        if my_str.len() == 0 { my_str = my_str + &line[start..end];}
+                        else { my_str = my_str + "\n" + &line[start..end] } }
+                }
+                start = cc;
+            }
+            end = cc;
+            cc += 1;
         }
-        if match_vec.len()> 0 && cc < line.len() { 
-            my_str = my_str + &line[cc..];
-        } else if match_vec.len() ==  0{
-            my_str = my_str + &line
-        }
 
-        return (match_vec.len()> 0, my_str )
+        if last_end <= cc && !extract_flag { 
+            if start != end { my_str = my_str + &line[last_end..start] + 
+                 RED_START + &line[start..] + COLOER_RESET;}
+            else { my_str = my_str + &line[last_end..]; }
+        } 
+        return my_str
     }
+
 }
-
-/// for replace mod
-pub struct LineReplacer <'a>{
-    pub matcher: Box<dyn PatternMatch>,
-    pub substitute: &'a str,
-    pub times: usize,
-}
-
-
-impl <'a> ReplaceLine for LineReplacer <'a>{
-    fn replace_line(&self, line: &str, ) -> (bool, String) {
-       match self.matcher.replace(line, self.substitute, self.times) {
-            Cow::Borrowed(v) => return (false, line.to_owned()),
-            Cow::Owned(v) => return (true, v),
-       }
-    }
-}
-

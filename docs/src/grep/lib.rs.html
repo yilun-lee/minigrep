@@ -66,43 +66,32 @@
 <a href="#66" id="66">66</a>
 <a href="#67" id="67">67</a>
 <a href="#68" id="68">68</a>
-<a href="#69" id="69">69</a>
-<a href="#70" id="70">70</a>
-<a href="#71" id="71">71</a>
-<a href="#72" id="72">72</a>
-<a href="#73" id="73">73</a>
 </pre><pre class="rust"><code>
 <span class="kw">pub mod </span>utils;
 <span class="kw">pub mod </span>grep;
 <span class="kw">mod </span>test;
 <span class="kw">pub mod </span>argparse;
 
-<span class="kw">use </span><span class="kw">crate</span>::grep::matcher::PatternMatch;
-<span class="kw">use </span>grep::handler::{LineExtractor,LinePainter,ReplaceLine};
-<span class="kw">use </span>utils::{FileReader, MyErrors, LinePrinter, };
+<span class="kw">use </span>grep::handler::Grep;
+
+<span class="kw">use </span>utils::reader::{FileReader,MyErrors};
+<span class="kw">use </span>utils::logger::LinePrint;
+
 
 <span class="doccomment">/// main loop for grep a file
 /// * file_reader: [FileReader](FileReader) object, read file by line.
 /// * line_handler: struct with [ReplaceLine](ReplaceLine) trait, match pattern and handle the match reuslt.
 </span><span class="kw">pub fn </span>main_loop(
         <span class="kw-2">mut </span>file_reader: FileReader, 
-        matcher: <span class="kw">impl </span>PatternMatch + <span class="lifetime">&#39;static</span>,
-        match_only_flag: bool,
-        line_prinrer: LinePrinter,
+        grep_group: <span class="kw-2">&amp;</span><span class="kw">impl </span>Grep,
+        line_prinrer: <span class="kw">impl </span>LinePrint,
         ) -&gt; <span class="prelude-ty">Result</span>&lt;(), anyhow::Error&gt; {
     
     <span class="kw">let </span>behind_size = file_reader.behind_size.clone();
 
-    <span class="kw">let </span><span class="kw-2">mut </span>whithin_flag = <span class="bool-val">false</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>whithin_flag: bool = <span class="bool-val">false</span>;
     <span class="kw">let </span><span class="kw-2">mut </span>line_after_match = <span class="number">0</span>;
     <span class="kw">let </span><span class="kw-2">mut </span>match_times = <span class="number">0</span>;
-
-    <span class="comment">//if match_only_flag {
-    //} else {
-    //    let line_handler = LinePainter {matcher: Box::new(matcher)};
-    //}
-    //let line_handler = LineExtractor {matcher: Box::new(matcher)};
-    </span><span class="kw">let </span>line_handler = LinePainter {matcher: Box::new(matcher)};
 
     <span class="kw">loop </span>{
 
@@ -115,7 +104,7 @@
             <span class="prelude-val">Err</span>(err) =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(err),
         };
         
-        <span class="kw">let </span>(match_flag, matched_line) = <span class="kw-2">&amp;</span>line_handler.replace_line(line);
+        <span class="kw">let </span>(match_flag, matched_line) = <span class="kw-2">&amp;</span>grep_group.grep_one_line(line);
         <span class="kw">if </span><span class="kw-2">*</span>match_flag {
             <span class="kw">if </span>match_times == <span class="number">0 </span>{ <span class="macro">println!</span>(<span class="string">&quot;\u{1b}[32m{}\u{1b}[39m:&quot;</span>,<span class="kw-2">&amp;</span>file_reader.file_path); };
 
@@ -127,6 +116,7 @@
             line_after_match = <span class="number">0</span>;
 
             match_times += <span class="number">1</span>;
+
         } <span class="kw">else </span>{
 
             line_after_match += <span class="number">1</span>;

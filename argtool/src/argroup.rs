@@ -55,7 +55,9 @@ impl ArgGroup  {
             // flag type
             ArgType::FlagType => {
                 argitem.required = false;
-                argitem.default = "false".to_string();
+                if argitem.default != String::from("true") {
+                    argitem.default = "false".to_string();
+                } 
                 self.add_non_pos_arg(argitem);
             },
             // other

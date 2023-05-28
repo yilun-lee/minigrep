@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"enum":["MyErrors"],"fn":["read_file"],"struct":["FileReader","LinePrinter","PathGlober"]};
+window.SIDEBAR_ITEMS = {"mod":["glober","logger","reader"]};

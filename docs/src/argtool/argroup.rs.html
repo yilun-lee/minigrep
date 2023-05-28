@@ -284,6 +284,8 @@
 <a href="#284" id="284">284</a>
 <a href="#285" id="285">285</a>
 <a href="#286" id="286">286</a>
+<a href="#287" id="287">287</a>
+<a href="#288" id="288">288</a>
 </pre><pre class="rust"><code>
 <span class="kw">use </span>std::{vec, fmt};
 <span class="kw">use </span>std::collections::HashMap;
@@ -341,7 +343,9 @@
             <span class="comment">// flag type
             </span>ArgType::FlagType =&gt; {
                 argitem.required = <span class="bool-val">false</span>;
-                argitem.default = <span class="string">&quot;false&quot;</span>.to_string();
+                <span class="kw">if </span>argitem.default != String::from(<span class="string">&quot;true&quot;</span>) {
+                    argitem.default = <span class="string">&quot;false&quot;</span>.to_string();
+                } 
                 <span class="self">self</span>.add_non_pos_arg(argitem);
             },
             <span class="comment">// other
