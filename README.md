@@ -9,9 +9,9 @@ This is my minigrep tool made only for learning rust. It is aimed to provided si
 
 ```shell
 # cd to this repo
-cargo build
+cargo build --release
 # This is binary location
-./target/release/minigrep
+./target/release/minigrep -h
 ```
 
 ### Current usage
@@ -39,10 +39,6 @@ Print help
 
 #### More usage:
 
-<style>
-    r {color: Red}
-</style>
-
 Print with line number and the following two line. 
 
 ```shell
@@ -55,14 +51,14 @@ Multiple match: struct, trait, and enum
 ./target/release/minigrep "trait" "minigrep/*" -n  -M "struct" -M "enum" -B 3 -A 1
 ```
 
-Extract match pattern, here the pattern is function name
+Extract match pattern, here the pattern is function name <br>
 🪲: There are some wrong behavior in extract, need capture group. If parenthesis is added, that is ```"fn [A-Za-z0-9_]+\("``` Some of matched line will be empty.
 
 ```shell
 ./target/release/minigrep "fn" "minigrep/*" -n -E "fn [A-Za-z0-9_]+"
 ```
 
-Replace ```->``` with ```==>```
+Replace ```->``` with ```==>``` <br>
 🪲: if replacer is ```-->``` there will be error. `-` need to be escaped. We need ```"\->"``` for ```-R``` only, there is no need to specify it twice.
 
 ```shell

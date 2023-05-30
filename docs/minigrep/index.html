@@ -1,9 +1,9 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="minigrep"><title>minigrep - Rust</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceSerif4-Regular-46f98efaafac5295.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceSerif4-Bold-a2c9cd1067f8b328.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../static.files/rustdoc-c4dbdcde0fbd8430.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../static.files/light-db279b6232be9c13.css"><link rel="stylesheet" disabled href="../static.files/dark-cf923f49f397b216.css"><link rel="stylesheet" disabled href="../static.files/ayu-be46fdc453a55015.css"><script src="../static.files/storage-3891ce972e3a2bf8.js"></script><script defer src="../crates.js"></script><script defer src="../static.files/main-98a684e84ae5b08b.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="logo-container" href="../minigrep/index.html"><img class="rust-logo" src="../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><h2></h2></nav><nav class="sidebar"><a class="logo-container" href="../minigrep/index.html"><img class="rust-logo" src="../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></a><h2 class="location"><a href="#">Crate minigrep</a></h2><div class="sidebar-elems"><ul class="block"><li class="version">Version 0.1.0</li><li><a id="all-types" href="all.html">All Items</a></li></ul><section><ul class="block"><li><a href="#modules">Modules</a></li><li><a href="#functions">Functions</a></li></ul></section></div></nav><main><div class="width-limiter"><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../static.files/wheel-7b819b6101059cd0.svg"></a></div></form></nav><section id="main-content" class="content"><div class="main-heading"><h1>Crate <a class="mod" href="#">minigrep</a><button id="copy-path" title="Copy item path to clipboard"><img src="../static.files/clipboard-7571035ce49a181d.svg" width="19" height="18" alt="Copy item path"></button></h1><span class="out-of-band"><a class="srclink" href="../src/minigrep/lib.rs.html#1-67">source</a> · <button id="toggle-all-docs" title="collapse all docs">[<span>&#x2212;</span>]</button></span></div><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><h2 id="minigrep"><a href="#minigrep">minigrep</a></h2>
 <p>This is my minigrep tool made only for learning rust. It is aimed to provided similar functionality with <a href="">ripgrep</a>. But for now it is still work in progress. Run slow, buggy and refactor-required. There are currently two crate here. First is argtool, for parse sys arg, used by minigrep. The other is grep, the main program for minigrep.</p>
 <h3 id="grep"><a href="#grep">grep</a></h3><h4 id="installation"><a href="#installation">Installation</a></h4><div class="example-wrap"><pre class="language-shell"><code># cd to this repo
-cargo build
+cargo build --release
 # This is binary location
-./target/release/minigrep
+./target/release/minigrep -h
 </code></pre></div><h4 id="current-usage"><a href="#current-usage">Current usage</a></h4><h5 id="simple-usage"><a href="#simple-usage">Simple usage:</a></h5>
 <p>Basic pattern</p>
 <div class="example-wrap"><pre class="language-shell"><code>./minigrep &quot;YourPattern&quot; &quot;YourDir/*&quot;
@@ -14,20 +14,18 @@ cargo build
 <p>Print help</p>
 <div class="example-wrap"><pre class="language-shell"><code>./target/release/minigrep -h
 ./target/release/minigrep --help
-</code></pre></div><h5 id="more-usage"><a href="#more-usage">More usage:</a></h5><style>
-    r {color: Red}
-</style>
+</code></pre></div><h5 id="more-usage"><a href="#more-usage">More usage:</a></h5>
 <p>Print with line number and the following two line. </p>
 <div class="example-wrap"><pre class="language-shell"><code>./target/release/minigrep &quot;fn&quot; &quot;minigrep/*&quot; -n -B 2
 </code></pre></div>
 <p>Multiple match: struct, trait, and enum</p>
 <div class="example-wrap"><pre class="language-shell"><code>./target/release/minigrep &quot;trait&quot; &quot;minigrep/*&quot; -n  -M &quot;struct&quot; -M &quot;enum&quot; -B 3 -A 1
 </code></pre></div>
-<p>Extract match pattern, here the pattern is function name
+<p>Extract match pattern, here the pattern is function name <br>
 🪲: There are some wrong behavior in extract, need capture group. If parenthesis is added, that is <code>&quot;fn [A-Za-z0-9_]+\(&quot;</code> Some of matched line will be empty.</p>
 <div class="example-wrap"><pre class="language-shell"><code>./target/release/minigrep &quot;fn&quot; &quot;minigrep/*&quot; -n -E &quot;fn [A-Za-z0-9_]+&quot;
 </code></pre></div>
-<p>Replace <code>-&gt;</code> with <code>==&gt;</code>
+<p>Replace <code>-&gt;</code> with <code>==&gt;</code> <br>
 🪲: if replacer is <code>--&gt;</code> there will be error. <code>-</code> need to be escaped. We need <code>&quot;\-&gt;&quot;</code> for <code>-R</code> only, there is no need to specify it twice.</p>
 <div class="example-wrap"><pre class="language-shell"><code>./target/release/minigrep &quot;\-&gt;&quot; &quot;minigrep/*&quot; -n -R &quot;\-&gt;&quot; -r &quot;==&gt;&quot;
 </code></pre></div><h3 id="argtool"><a href="#argtool">argtool</a></h3>
