@@ -1,1 +1,1 @@
-window.ALL_CRATES = ["argtool","grep"];
+window.ALL_CRATES = ["argtool","minigrep"];

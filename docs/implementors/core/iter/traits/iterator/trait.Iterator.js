@@ -1,3 +1,3 @@
 (function() {var implementors = {
-"grep":[["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.69.0/core/iter/traits/iterator/trait.Iterator.html\" title=\"trait core::iter::traits::iterator::Iterator\">Iterator</a> for <a class=\"struct\" href=\"grep/utils/glober/struct.PathGlober.html\" title=\"struct grep::utils::glober::PathGlober\">PathGlober</a>"]]
+"minigrep":[["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.69.0/core/iter/traits/iterator/trait.Iterator.html\" title=\"trait core::iter::traits::iterator::Iterator\">Iterator</a> for <a class=\"struct\" href=\"minigrep/utils/glober/struct.PathGlober.html\" title=\"struct minigrep::utils::glober::PathGlober\">PathGlober</a>"]]
 };if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

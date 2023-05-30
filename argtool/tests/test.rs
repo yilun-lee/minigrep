@@ -39,7 +39,7 @@ mod tests {
                     .set_argtype(ArgType::PositionalType),
             )
             .unwrap();
-        return my_arg_table;
+        my_arg_table
     }
 
     #[test]
@@ -47,7 +47,7 @@ mod tests {
         let mut my_arg_table = get_my_argroup();
 
         let mystr: String = String::from("/lib.rs -i this_is_file -e \"^[A-Z]+\" --e \";$\" -n 3 ");
-        let my_cmd_iter = mystr.split(" ").map(|a| a.to_owned()).into_iter();
+        let my_cmd_iter = mystr.split(' ').map(|a| a.to_owned());
 
         let my_arg: std::collections::HashMap<String, argtool::ArgValue> =
             my_arg_table.parse(my_cmd_iter).unwrap();
@@ -62,7 +62,7 @@ mod tests {
             vec!["\"^[A-Z]+\"".to_string(), "\";$\"".to_string()],
             my_arg["expression"].get_vec().unwrap()
         );
-        assert_eq!(true, my_arg["ignorecase"].get_bool().unwrap());
+        assert!(my_arg["ignorecase"].get_bool().unwrap());
         assert_eq!(3, my_arg_table.get_i32("line").unwrap());
     }
 
@@ -73,7 +73,7 @@ mod tests {
 
         let mystr: String =
             String::from("/lib.rs -i this_is_file -e \"^[A-Z]+\" -e \";$\" -n 3 -t UNDEFINE");
-        let my_cmd_iter = mystr.split(" ").map(|a| a.to_owned()).into_iter();
+        let my_cmd_iter = mystr.split(' ').map(|a| a.to_owned());
 
         let my_arg = my_arg_table.parse(my_cmd_iter).unwrap();
         println!("{:#?}", my_arg);
@@ -85,7 +85,7 @@ mod tests {
         let mut my_arg_table = get_my_argroup();
 
         let mystr: String = String::from("/lib.rs -i -e \"^[A-Z]+\" -e \";$\" -n 3");
-        let my_cmd_iter = mystr.split(" ").map(|a| a.to_owned()).into_iter();
+        let my_cmd_iter = mystr.split(' ').map(|a| a.to_owned());
 
         let my_arg = my_arg_table.parse(my_cmd_iter).unwrap();
         println!("{:#?}", my_arg);
@@ -96,13 +96,13 @@ mod tests {
         let mut my_arg_table = get_my_argroup();
 
         let mystr: String = String::from("/lib.rs -e \"^[A-Z]+\" -e \";$\" this_is_file");
-        let my_cmd_iter = mystr.split(" ").map(|a| a.to_owned()).into_iter();
+        let my_cmd_iter = mystr.split(' ').map(|a| a.to_owned());
 
         let my_arg = my_arg_table.parse(my_cmd_iter).unwrap();
         println!("{:#?}", my_arg);
 
         assert_eq!(-1, my_arg["line"].get_i32().unwrap());
-        assert_eq!(false, my_arg["ignorecase"].get_bool().unwrap());
+        assert!(!my_arg["ignorecase"].get_bool().unwrap());
     }
 
     #[test]
@@ -111,12 +111,12 @@ mod tests {
         let mut my_arg_table = get_my_argroup();
 
         let mystr: String = String::from("/lib.rs -e -i this_is_file ");
-        let my_cmd_iter = mystr.split(" ").map(|a| a.to_owned()).into_iter();
+        let my_cmd_iter = mystr.split(' ').map(|a| a.to_owned());
 
         let my_arg = my_arg_table.parse(my_cmd_iter).unwrap();
         println!("{:#?}", my_arg);
 
         assert_eq!(-1, my_arg["line"].get_i32().unwrap());
-        assert_eq!(false, my_arg["ignorecase"].get_bool().unwrap());
+        assert!(!my_arg["ignorecase"].get_bool().unwrap());
     }
 }

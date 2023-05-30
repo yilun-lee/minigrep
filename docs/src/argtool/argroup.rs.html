@@ -347,8 +347,8 @@
 </span><span class="kw">impl </span>ArgGroup {
     <span class="kw">pub fn </span>new(name: String, discription: String) -&gt; ArgGroup {
         ArgGroup {
-            name: name,
-            discription: discription,
+            name,
+            discription,
             ..Default::default()
         }
     }
@@ -367,7 +367,7 @@
             <span class="comment">// flag type
             </span>ArgType::FlagType =&gt; {
                 argitem.required = <span class="bool-val">false</span>;
-                <span class="kw">if </span>argitem.default != String::from(<span class="string">&quot;true&quot;</span>) {
+                <span class="kw">if </span>argitem.default != <span class="kw-2">*</span><span class="string">&quot;true&quot; </span>{
                     argitem.default = <span class="string">&quot;false&quot;</span>.to_string();
                 }
                 <span class="self">self</span>.add_non_pos_arg(argitem);
@@ -385,7 +385,7 @@
         <span class="kw-2">mut </span>sys_args: <span class="kw">impl </span>Iterator&lt;Item = String&gt;,
     ) -&gt; <span class="prelude-ty">Result</span>&lt;HashMap&lt;String, ArgValue&gt;, anyhow::Error&gt; {
         <span class="comment">// remove first argument, should be the binary or script path
-        </span><span class="kw">if let </span><span class="prelude-val">None </span>= sys_args.next() {
+        </span><span class="kw">if </span>sys_args.next().is_none() {
             <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">anyhow!</span>(<span class="string">&quot;No argument found&quot;</span>));
         }
 
@@ -451,7 +451,7 @@
         <span class="kw">if </span><span class="self">self</span>.alias_map.contains_key(<span class="kw-2">&amp;</span>keyname) {
             new_key_name = <span class="kw-2">&amp;</span><span class="self">self</span>.alias_map[<span class="kw-2">&amp;</span>keyname];
         }
-        <span class="kw">return </span>new_key_name.to_owned();
+        new_key_name.to_owned()
     }
 
     <span class="kw">fn </span>match_arg(
@@ -474,7 +474,7 @@
                 <span class="comment">// get next
                 </span><span class="kw">let </span>arg_val: String = <span class="self">self</span>.get_arg_content(sys_args, keyname.clone())<span class="question-mark">?</span>;
                 <span class="self">self</span>.arg_map
-                    .insert(keyname.to_string(), ArgValue::STR(arg_val.to_string()));
+                    .insert(keyname.to_string(), ArgValue::STR(arg_val));
             }
 
             ArgType::ListType =&gt; {
@@ -485,7 +485,7 @@
                     </span>.arg_map
                     .entry(keyname.to_string())
                     .or_insert(ArgValue::VEC(<span class="macro">vec!</span>[]));
-                v.push_vec(arg_val.to_string())<span class="question-mark">?</span>;
+                v.push_vec(arg_val)<span class="question-mark">?</span>;
             }
 
             ArgType::FlagType =&gt; {
@@ -558,7 +558,7 @@
     <span class="kw">fn </span>fmt(<span class="kw-2">&amp;</span><span class="self">self</span>, f: <span class="kw-2">&amp;mut </span>fmt::Formatter) -&gt; fmt::Result {
         <span class="macro">writeln!</span>(f, <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>.name)<span class="question-mark">?</span>;
         <span class="macro">writeln!</span>(f, <span class="string">&quot;{}&quot;</span>, <span class="self">self</span>.discription)<span class="question-mark">?</span>;
-        <span class="macro">writeln!</span>(f, <span class="string">&quot;&quot;</span>)<span class="question-mark">?</span>;
+        <span class="macro">writeln!</span>(f)<span class="question-mark">?</span>;
 
         <span class="macro">writeln!</span>(f, <span class="string">&quot;Positional arg:&quot;</span>)<span class="question-mark">?</span>;
         <span class="kw">for </span>argitme <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.pos_arg {

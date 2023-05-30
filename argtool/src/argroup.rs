@@ -34,8 +34,8 @@ impl Default for ArgGroup {
 impl ArgGroup {
     pub fn new(name: String, discription: String) -> ArgGroup {
         ArgGroup {
-            name: name,
-            discription: discription,
+            name,
+            discription,
             ..Default::default()
         }
     }
@@ -54,7 +54,7 @@ impl ArgGroup {
             // flag type
             ArgType::FlagType => {
                 argitem.required = false;
-                if argitem.default != String::from("true") {
+                if argitem.default != *"true" {
                     argitem.default = "false".to_string();
                 }
                 self.add_non_pos_arg(argitem);
@@ -72,7 +72,7 @@ impl ArgGroup {
         mut sys_args: impl Iterator<Item = String>,
     ) -> Result<HashMap<String, ArgValue>, anyhow::Error> {
         // remove first argument, should be the binary or script path
-        if let None = sys_args.next() {
+        if sys_args.next().is_none() {
             return Err(anyhow!("No argument found"));
         }
 
@@ -138,7 +138,7 @@ impl ArgGroup {
         if self.alias_map.contains_key(&keyname) {
             new_key_name = &self.alias_map[&keyname];
         }
-        return new_key_name.to_owned();
+        new_key_name.to_owned()
     }
 
     fn match_arg(
@@ -161,7 +161,7 @@ impl ArgGroup {
                 // get next
                 let arg_val: String = self.get_arg_content(sys_args, keyname.clone())?;
                 self.arg_map
-                    .insert(keyname.to_string(), ArgValue::STR(arg_val.to_string()));
+                    .insert(keyname.to_string(), ArgValue::STR(arg_val));
             }
 
             ArgType::ListType => {
@@ -172,7 +172,7 @@ impl ArgGroup {
                     .arg_map
                     .entry(keyname.to_string())
                     .or_insert(ArgValue::VEC(vec![]));
-                v.push_vec(arg_val.to_string())?;
+                v.push_vec(arg_val)?;
             }
 
             ArgType::FlagType => {
@@ -245,7 +245,7 @@ impl fmt::Display for ArgGroup {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         writeln!(f, "{}", self.name)?;
         writeln!(f, "{}", self.discription)?;
-        writeln!(f, "")?;
+        writeln!(f)?;
 
         writeln!(f, "Positional arg:")?;
         for argitme in &self.pos_arg {

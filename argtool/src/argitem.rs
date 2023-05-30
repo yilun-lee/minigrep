@@ -173,7 +173,7 @@ impl ArgValue {
     fn match_type(&self) -> Result<String, anyhow::Error> {
         match self {
             ArgValue::STR(v) => Ok(v.clone()),
-            _ => return Err(anyhow!("Argument is not scalar")),
+            _ => Err(anyhow!("Argument is not scalar")),
         }
     }
 
@@ -209,7 +209,7 @@ impl ArgValue {
     pub fn get_vec(&self) -> Result<Vec<String>, anyhow::Error> {
         match self {
             ArgValue::VEC(v) => Ok(v.clone()),
-            _ => return Err(anyhow!("Argument is not vector")),
+            _ => Err(anyhow!("Argument is not vector")),
         }
     }
 
