@@ -15,5 +15,5 @@ cp -r target/doc docs
 
 git add docs 
 git add -u
-git commit 
+git commit -m "Add docs"
 
