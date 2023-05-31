@@ -17,7 +17,7 @@ impl PathGlober {
         sender: Sender<Option<PathBuf>>,
     ) -> Result<PathGlober, anyhow::Error> {
         let mut path_glober = PathGlober {
-            sender: sender,
+            sender,
             skip_hidden,
             max_depth,
         };

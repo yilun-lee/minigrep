@@ -4,7 +4,7 @@ use std::fs::File;
 use std::io::{self, BufRead, BufReader, Lines};
 use thiserror;
 
-use super::logger::{LinePrint, PrintBuffer};
+use super::logger::PrintBuffer;
 
 /// My own error
 ///

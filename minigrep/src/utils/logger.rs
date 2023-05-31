@@ -38,9 +38,9 @@ impl PrintBuffer {
     pub fn new(file_path_flag: bool, line_num_flag: bool, file_path: String) -> PrintBuffer {
         PrintBuffer {
             num_line: vec![],
-            file_path: file_path,
-            file_path_flag: file_path_flag,
-            line_num_flag: line_num_flag,
+            file_path,
+            file_path_flag,
+            line_num_flag,
             cc: 0,
         }
     }

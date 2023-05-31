@@ -7,7 +7,7 @@ pub mod utils;
 
 use grep::handler::Grep;
 
-use utils::logger::{LinePrint, PrintBuffer};
+use utils::logger::PrintBuffer;
 use utils::reader::{FileReader, MyErrors};
 
 /// main loop for grep a file

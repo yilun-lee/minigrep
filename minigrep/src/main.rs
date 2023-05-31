@@ -38,7 +38,7 @@ fn glober_thread(
             path_sender.send(None).unwrap();
         }
     });
-    return path_receiver;
+    path_receiver
 }
 
 fn parallel_match(
