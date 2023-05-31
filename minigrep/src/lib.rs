@@ -7,7 +7,7 @@ pub mod utils;
 
 use grep::handler::Grep;
 
-use utils::logger::LinePrint;
+use utils::logger::{LinePrint, PrintBuffer};
 use utils::reader::{FileReader, MyErrors};
 
 /// main loop for grep a file
@@ -15,12 +15,12 @@ use utils::reader::{FileReader, MyErrors};
 pub fn main_loop(
     mut file_reader: FileReader,
     grep_group: &impl Grep,
-    line_prinrer: impl LinePrint,
-) -> Result<(), anyhow::Error> {
+    mut print_buffer: PrintBuffer,
+) -> Result<PrintBuffer, anyhow::Error> {
     let behind_size = file_reader.behind_size;
 
     let mut whithin_flag: bool = false;
-    let mut line_after_match = 0;
+    let mut line_after_match: i32 = 0;
     let mut match_times = 0;
 
     loop {
@@ -28,25 +28,26 @@ pub fn main_loop(
         let line: &str = match file_reader.next() {
             Ok(v) => v,
             // if my custom EOF error
-            Err(err) if err.downcast_ref() == Some(&MyErrors::EndOfFile) => return Ok(()),
+            Err(err) if err.downcast_ref() == Some(&MyErrors::EndOfFile) => {
+                return Ok(print_buffer)
+            }
             Err(err) => return Err(err),
         };
 
-        let (match_flag, matched_line) = &grep_group.grep_one_line(line);
-        if *match_flag {
-            if match_times == 0 {
-                println!("\u{1b}[32m{}\u{1b}[39m:", &file_reader.file_path);
+        let (match_flag, matched_line) = grep_group.grep_one_line(line);
+        if match_flag {
+            if match_times == 0 && !print_buffer.file_path_flag {
+                print_buffer.push(
+                    format!("\u{1b}[32m{}\u{1b}[39m:", &file_reader.file_path),
+                    -1,
+                );
             };
 
             if !whithin_flag {
-                file_reader.print_buffer(&line_prinrer);
+                file_reader.print_buffer(&mut print_buffer);
                 whithin_flag = true;
             }
-            line_prinrer.print(
-                matched_line,
-                file_reader.cc as usize,
-                &file_reader.file_path,
-            );
+            print_buffer.push(matched_line, file_reader.cc);
             line_after_match = 0;
 
             match_times += 1;
@@ -56,11 +57,7 @@ pub fn main_loop(
             if line_after_match > behind_size {
                 whithin_flag = false
             } else if whithin_flag {
-                line_prinrer.print(
-                    matched_line,
-                    file_reader.cc as usize,
-                    &file_reader.file_path,
-                );
+                print_buffer.push(matched_line, file_reader.cc);
             }
         }
     }

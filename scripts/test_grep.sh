@@ -13,13 +13,13 @@ cargo run -p grep -- \
     -n -M "\{" -M "\}"
 
 #  test extract 
-cargo run -p grep -- \
-    "println" /Users/sox/CODE/minigrep/grep/src/main.rs \
+cargo run -p minigrep -- \
+    "println" /Users/sox/CODE/minigrep/minigrep/src/main.rs \
     -n -E "\{" -E "\}"
 
 #  test replace 
 cargo run -p minigrep -- \
-    "println" "/Users/sox/CODE/minigrep/minigrep/*" \
+    "fn" "/Users/sox/CODE/minigrep/minigrep/*" \
     -n -R "\{" -r "<"  -R "\}" -r ">" -t 1
 
 #  test no file error 
@@ -36,7 +36,10 @@ $BASEDIR/target/release/grep \
     "fn" "/Users/sox/CODE/minigrep/grep/*" \
     -n -R "\->" -r "==>" -B 4
 
-$BASEDIR/target/release/grep \
-    "fn" "/Users/sox/CODE/minigrep/grep/*" \
-    -n -E "fn\s+([A-Za-z0-9_]+)"
+
+
+
+hyperfine --runs 10 --warmup 5 --ignore-failure \
+    'bash scripts/minigrep.sh' 'bash scripts/ripgrep.sh' 'bash scripts/grep.sh'
+
 

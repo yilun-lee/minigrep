@@ -6,90 +6,81 @@
 
 // argparse is only used here
 mod argparse;
+mod threadtool;
 
 // use lib here
 // main should access other module through lib
-use anyhow::{anyhow, Result};
+use anyhow::Result;
 use argparse::MiniGrepArg;
 use crossbeam::channel::unbounded;
+use crossbeam::channel::Receiver;
 use minigrep::grep::handler::GrepGroup;
-use minigrep::main_loop;
 use minigrep::utils::glober::PathGlober;
-use minigrep::utils::logger::LinePrinter;
-use minigrep::utils::reader::FileReader;
-use std::{env, path::PathBuf, sync::Arc, thread};
+use std::path::PathBuf;
+use std::{env, sync::Arc, thread};
+use threadtool::RunArg;
+use threadtool::ThreadWorker;
 
-fn simple_match(
-    my_path: PathGlober,
-    ahead_size: i32,
-    behind_size: i32,
-    my_re: GrepGroup,
-    line_printer: LinePrinter,
-) {
-    for file_path in my_path {
-        let file_reader = match FileReader::new(file_path.clone(), ahead_size, behind_size) {
-            Ok(v) => v,
-            Err(v) => {
-                eprintln!("read {} error: {v}", file_path);
-                continue;
-            }
-        };
-        let out = main_loop(file_reader, &my_re, line_printer.clone());
-        match out {
-            Ok(v) => v,
-            Err(v) => {
-                eprintln!("match {} error: {v}", file_path);
-                continue;
-            }
+fn glober_thread(
+    file_path: String,
+    skip_hidden: bool,
+    max_depth: usize,
+    thread_num: usize,
+) -> Receiver<Option<PathBuf>> {
+    let (path_sender, path_receiver) = unbounded();
+    thread::spawn(move || {
+        let path_sender = path_sender.clone();
+        // run glober
+        PathGlober::new(&file_path, skip_hidden, max_depth, path_sender.clone())
+            .expect("PathGlober run failed");
+        // turn off all tread after glob
+        for _ in 0..thread_num {
+            path_sender.send(None).unwrap();
         }
-    }
+    });
+    return path_receiver;
 }
 
 fn parallel_match(
-    mut my_path: PathGlober,
-    ahead_size: i32,
-    behind_size: i32,
+    run_arg: RunArg,
     my_re: GrepGroup,
-    line_printer: LinePrinter,
-) {
-    let (tx, rx) = unbounded();
-    let mut children = Vec::new();
+    thread_num: usize,
+    path_receiver: Receiver<Option<PathBuf>>,
+) -> Result<()> {
+    let (line_sender, line_receiver) = unbounded();
     let my_re = Arc::new(my_re);
-    let line_printer = Arc::new(line_printer);
+    let run_arg = Arc::new(run_arg);
 
-    loop {
-        let file_path = match my_path.next() {
-            Some(v) => v,
-            None => break,
+    // run worker
+    let mut thread_vec: Vec<_> = Vec::new();
+    for _ in 0..thread_num {
+        let thread_worker = ThreadWorker {
+            my_re: my_re.clone(),
+            run_arg: run_arg.clone(),
+            reciever: path_receiver.clone(),
+            // send to log thread
+            sender: line_sender.clone(),
         };
-        let tx = tx.clone();
-        let my_re_inside = Arc::clone(&my_re);
-        let line_printer_inside = Arc::clone(&line_printer);
-
-        children.push(thread::spawn(move || {
-            let file_reader = match FileReader::new(file_path.clone(), ahead_size, behind_size) {
-                Ok(v) => v,
-                Err(v) => {
-                    tx.send(Err(anyhow!("read {} error: {v}", file_path)))
-                        .unwrap();
-                    return;
-                }
-            };
-            let out = main_loop(file_reader, &*my_re_inside, *line_printer_inside);
-            tx.send(out).unwrap();
-            return;
-        }));
+        thread_vec.push(thread::spawn(move || {
+            thread_worker.run();
+            println!("Work complete");
+        }))
     }
 
-    drop(tx);
-    for out in &rx {
-        match out {
-            Ok(v) => v,
+    drop(line_sender);
+    drop(path_receiver);
+
+    // print buffer
+    for print_buffer in line_receiver {
+        match print_buffer {
+            Ok(v) => v.print_all(),
             Err(v) => {
                 eprintln!("{}", v);
+                continue;
             }
         }
     }
+    Ok(())
 }
 
 /// main function for arg
@@ -112,22 +103,23 @@ fn main() {
     )
     .expect("GrepGroup build failed");
 
-    let line_printer: LinePrinter = LinePrinter {
-        line_num_flag: my_arg.line_num_flag,
+    // run arg
+    let run_arg = RunArg {
+        ahead_size: my_arg.ahead_size,
+        behind_size: my_arg.behind_size,
         file_path_flag: my_arg.file_path_flag,
+        line_num_flag: my_arg.line_num_flag,
     };
 
-    let mut my_path: PathGlober =
-        PathGlober::new(&my_arg.file_path, my_arg.skip_hidden, my_arg.max_depth)
-            .expect("PathGlober run failed");
-
-    parallel_match(
-        my_path,
-        my_arg.ahead_size,
-        my_arg.behind_size,
-        my_re,
-        line_printer,
+    // glober
+    let path_receiver = glober_thread(
+        my_arg.file_path,
+        my_arg.skip_hidden,
+        my_arg.max_depth,
+        my_arg.thread_num,
     );
+
+    parallel_match(run_arg, my_re, my_arg.thread_num, path_receiver).unwrap();
 }
 
 // {{}}}

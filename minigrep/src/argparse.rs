@@ -21,6 +21,7 @@ pub struct MiniGrepArg {
     pub file_path: String,
     pub skip_hidden: bool,
     pub max_depth: usize,
+    pub thread_num: usize,
 }
 
 impl MiniGrepArg {
@@ -51,6 +52,7 @@ impl MiniGrepArg {
             file_path: my_arg_table.get_string("file_path")?,
             skip_hidden: my_arg_table.get_bool("skip_hidden")?,
             max_depth: my_arg_table.get_i32("max_depth")? as usize,
+            thread_num: my_arg_table.get_i32("thread_num")? as usize,
         };
 
         if my_arg.replace_expr.len() != my_arg.replacer.len() {
@@ -171,6 +173,13 @@ fn get_parser() -> Result<ArgGroup> {
         ArgItem::new("max_depth", "d")
             .set_detail("depth for os walker ")
             .set_default("10", false)
+            .set_argtype(ArgType::BaseType),
+    )?;
+
+    my_arg_table.add_arg(
+        ArgItem::new("thread_num", "T")
+            .set_detail("number of thread ")
+            .set_default("5", false)
             .set_argtype(ArgType::BaseType),
     )?;
 

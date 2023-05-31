@@ -4,7 +4,7 @@ use std::fs::File;
 use std::io::{self, BufRead, BufReader, Lines};
 use thiserror;
 
-use super::logger::LinePrint;
+use super::logger::{LinePrint, PrintBuffer};
 
 /// My own error
 ///
@@ -82,19 +82,24 @@ impl<'a> FileReader {
             self.buffer.pop_front();
         }
 
-        self.line = match self.buf_reader.next() {
-            Some(v) => v?,
+        let read_result = match self.buf_reader.next() {
+            Some(v) => v,
             None => return Err(anyhow!(MyErrors::EndOfFile)),
+        };
+
+        self.line = match read_result {
+            Ok(v) => v,
+            Err(err) => return Err(anyhow!("{} fialed: {}", &self.file_path, err)),
         };
 
         Ok(&self.line)
     }
 
     /// print all ahead buffer
-    pub fn print_buffer(&self, line_printer: &impl LinePrint) {
+    pub fn print_buffer(&self, print_buffer: &mut PrintBuffer) {
         let mut cc = self.cc - 1;
         for i in &self.buffer {
-            line_printer.print(i, cc as usize, &self.file_path);
+            print_buffer.push(i.to_string(), cc);
             cc -= 1;
         }
     }

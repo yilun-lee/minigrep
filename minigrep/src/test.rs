@@ -2,16 +2,6 @@
 mod tests {
     // from lib
     use crate::argparse::MiniGrepArg;
-    use crate::utils::glober::PathGlober;
-
-    #[test]
-    fn test_read_line() {
-        let my_path = PathGlober::new("/Users/sox/CODE/minigrep/grep/*", true, 2).unwrap();
-
-        for file_path in my_path {
-            println!("{}", file_path);
-        }
-    }
 
     #[test]
     fn test_argparse() {

@@ -90,7 +90,10 @@ impl ArgGroup {
                     // For pos type argument if available -> not start with - , not coupled argument
                     } else if &arg[..1] != "-" {
                         if cc >= pos_num {
-                            return Err(anyhow!("Too many positional argument, expect {}", pos_num));
+                            return Err(anyhow!(
+                                "Too many positional argument, expect {}",
+                                pos_num
+                            ));
                         }
                         let argitem = &self.pos_arg[cc];
                         self.arg_map

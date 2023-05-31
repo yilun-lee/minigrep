@@ -1,9 +1,10 @@
 use anyhow::anyhow;
+use crossbeam::channel::Sender;
 use glob::glob;
 use std::{fs, path::PathBuf};
 
 pub struct PathGlober {
-    pub pathbuf_vec: Vec<PathBuf>,
+    pub sender: Sender<Option<PathBuf>>,
     skip_hidden: bool,
     max_depth: usize,
 }
@@ -13,16 +14,14 @@ impl PathGlober {
         file_pattern: &str,
         skip_hidden: bool,
         max_depth: usize,
+        sender: Sender<Option<PathBuf>>,
     ) -> Result<PathGlober, anyhow::Error> {
         let mut path_glober = PathGlober {
-            pathbuf_vec: vec![],
+            sender: sender,
             skip_hidden,
             max_depth,
         };
         path_glober.search_path(file_pattern, 0)?;
-        if path_glober.pathbuf_vec.is_empty() {
-            return Err(anyhow!("No files found!"));
-        }
         Ok(path_glober)
     }
 
@@ -35,7 +34,7 @@ impl PathGlober {
         for i in entry {
             let my_pathbuf: PathBuf = fs::canonicalize(i?)?;
             let my_path = my_pathbuf.as_path();
-            let my_path_str = my_path
+            let my_path_str: &str = my_path
                 .file_name()
                 .ok_or(anyhow!("Get filename failded"))?
                 .to_str()
@@ -54,7 +53,7 @@ impl PathGlober {
                 };
                 self.search_path(&dirpath, current_depth + 1)?;
             } else {
-                self.pathbuf_vec.push(my_pathbuf);
+                self.sender.send(Some(my_pathbuf))?;
             }
         }
         Ok(())
@@ -67,18 +66,5 @@ impl PathGlober {
         };
 
         Ok(file_path)
-    }
-}
-
-impl Iterator for PathGlober {
-    type Item = String;
-    fn next(&mut self) -> Option<Self::Item> {
-        let pathbuf = self.pathbuf_vec.pop()?;
-        let my_out = match self.read_one_entry(pathbuf) {
-            Ok(v) => v,
-            Err(_) => return None,
-        };
-
-        Some(my_out)
     }
 }

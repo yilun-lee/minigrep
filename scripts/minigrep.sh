@@ -1,0 +1,1 @@
+target/release/minigrep "fn" "*" 
