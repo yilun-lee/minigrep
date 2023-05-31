@@ -3,7 +3,7 @@ pub trait LinePrint {
 }
 
 /// for weather print value with num and file_name
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Copy)]
 pub struct LinePrinter {
     pub line_num_flag: bool,
     pub file_path_flag: bool,

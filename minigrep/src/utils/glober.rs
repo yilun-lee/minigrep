@@ -3,7 +3,7 @@ use glob::glob;
 use std::{fs, path::PathBuf};
 
 pub struct PathGlober {
-    pathbuf_vec: Vec<PathBuf>,
+    pub pathbuf_vec: Vec<PathBuf>,
     skip_hidden: bool,
     max_depth: usize,
 }

@@ -4,7 +4,7 @@ use anyhow::Result;
 use regex::Regex;
 
 /// trait for different pattern match method
-pub trait PatternMatch {
+pub trait PatternMatch: Sync + Send {
     /// if it contain the pattern
     fn contain(&self, line: &str) -> bool;
     /// extract the pattern

@@ -7,6 +7,8 @@
 # bash scripts/pre_push.sh
 
 # add doc
+skipdoc() {
+
 rm -rf target/doc || true
 cargo doc --no-deps --workspace  
 
@@ -17,3 +19,4 @@ git add docs
 git add -u
 git commit -m "Add docs"
 
+}

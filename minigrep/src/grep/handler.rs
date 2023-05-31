@@ -62,7 +62,7 @@ impl GrepGroup {
 
         let mut extract_list: Vec<Box<dyn PatternMatch>> = vec![];
         for i in &extract_expr {
-            let my_re = RegexMatcher::new(i, ignorecase)?;
+            let my_re: RegexMatcher = RegexMatcher::new(i, ignorecase)?;
             extract_list.push(Box::new(my_re));
         }
 

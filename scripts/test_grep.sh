@@ -18,8 +18,8 @@ cargo run -p grep -- \
     -n -E "\{" -E "\}"
 
 #  test replace 
-cargo run -p grep -- \
-    "println" /Users/sox/CODE/minigrep/grep/src/main.rs \
+cargo run -p minigrep -- \
+    "println" "/Users/sox/CODE/minigrep/minigrep/*" \
     -n -R "\{" -r "<"  -R "\}" -r ">" -t 1
 
 #  test no file error 
