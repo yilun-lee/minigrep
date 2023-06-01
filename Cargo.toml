@@ -3,14 +3,5 @@
 members = [
     "argtool",
     "minigrep",
+    "gitgrep",
 ]
-
-[profile.release]
-debug = 1
-
-[profile.profiling]
-inherits = "release"
-debug = true
-
-[rust]
-debuginfo-level = 1
