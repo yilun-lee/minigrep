@@ -33,7 +33,7 @@ impl PathGlober {
         let entry = glob(file_pattern)?;
         for i in entry {
             let my_pathbuf: PathBuf = fs::canonicalize(i?)?;
-            let my_path = my_pathbuf.as_path();
+            let my_path: &std::path::Path = my_pathbuf.as_path();
             let my_path_str: &str = my_path
                 .file_name()
                 .ok_or(anyhow!("Get filename failded"))?
@@ -64,7 +64,6 @@ impl PathGlober {
             Ok(v) => v,
             Err(_) => return Err(anyhow!("pathbuf to os string error")),
         };
-
         Ok(file_path)
     }
 }

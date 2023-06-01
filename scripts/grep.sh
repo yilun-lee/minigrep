@@ -1,1 +1,1 @@
-grep -r "fn" -I *
+grep -r "fn" -I ../*

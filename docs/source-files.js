@@ -1,26 +1,5 @@
 var sourcesIndex = JSON.parse('{\
-"aho_corasick":["",[["packed",[["teddy",[],["compile.rs","mod.rs","runtime.rs"]]],["api.rs","mod.rs","pattern.rs","rabinkarp.rs","vector.rs"]]],["ahocorasick.rs","automaton.rs","buffer.rs","byte_frequencies.rs","classes.rs","dfa.rs","error.rs","lib.rs","nfa.rs","prefilter.rs","state_id.rs"]],\
-"anyhow":["",[],["backtrace.rs","chain.rs","context.rs","ensure.rs","error.rs","fmt.rs","kind.rs","lib.rs","macros.rs","ptr.rs","wrapper.rs"]],\
 "argtool":["",[],["argitem.rs","argroup.rs","lib.rs"]],\
-"cfg_if":["",[],["lib.rs"]],\
-"crossbeam":["",[],["lib.rs"]],\
-"crossbeam_channel":["",[["flavors",[],["array.rs","at.rs","list.rs","mod.rs","never.rs","tick.rs","zero.rs"]]],["channel.rs","context.rs","counter.rs","err.rs","lib.rs","select.rs","select_macro.rs","utils.rs","waker.rs"]],\
-"crossbeam_deque":["",[],["deque.rs","lib.rs"]],\
-"crossbeam_epoch":["",[["sync",[],["list.rs","mod.rs","once_lock.rs","queue.rs"]]],["atomic.rs","collector.rs","default.rs","deferred.rs","epoch.rs","guard.rs","internal.rs","lib.rs"]],\
-"crossbeam_queue":["",[],["array_queue.rs","lib.rs","seg_queue.rs"]],\
-"crossbeam_utils":["",[["atomic",[],["atomic_cell.rs","consume.rs","mod.rs","seq_lock.rs"]],["sync",[],["mod.rs","once_lock.rs","parker.rs","sharded_lock.rs","wait_group.rs"]]],["backoff.rs","cache_padded.rs","lib.rs","thread.rs"]],\
-"glob":["",[],["lib.rs"]],\
-"memchr":["",[["memchr",[["x86",[],["avx.rs","mod.rs","sse2.rs"]]],["fallback.rs","iter.rs","mod.rs","naive.rs"]],["memmem",[["prefilter",[["x86",[],["avx.rs","mod.rs","sse.rs"]]],["fallback.rs","genericsimd.rs","mod.rs"]],["x86",[],["avx.rs","mod.rs","sse.rs"]]],["byte_frequencies.rs","genericsimd.rs","mod.rs","rabinkarp.rs","rarebytes.rs","twoway.rs","util.rs","vector.rs"]]],["cow.rs","lib.rs"]],\
-"memoffset":["",[],["lib.rs","offset_of.rs","raw_field.rs","span_of.rs"]],\
-"minigrep":["",[["grep",[],["handler.rs","matcher.rs","str_const.rs","test.rs"]],["utils",[],["glober.rs","logger.rs","reader.rs"]]],["argparse.rs","grep.rs","lib.rs","test.rs","utils.rs"]],\
-"proc_macro2":["",[],["detection.rs","extra.rs","fallback.rs","lib.rs","marker.rs","parse.rs","rcvec.rs","wrapper.rs"]],\
-"quote":["",[],["ext.rs","format.rs","ident_fragment.rs","lib.rs","runtime.rs","spanned.rs","to_tokens.rs"]],\
-"regex":["",[["literal",[],["imp.rs","mod.rs"]]],["backtrack.rs","compile.rs","dfa.rs","error.rs","exec.rs","expand.rs","find_byte.rs","input.rs","lib.rs","pikevm.rs","pool.rs","prog.rs","re_builder.rs","re_bytes.rs","re_set.rs","re_trait.rs","re_unicode.rs","sparse.rs","utf8.rs"]],\
-"regex_syntax":["",[["ast",[],["mod.rs","parse.rs","print.rs","visitor.rs"]],["hir",[["literal",[],["mod.rs"]]],["interval.rs","mod.rs","print.rs","translate.rs","visitor.rs"]],["unicode_tables",[],["age.rs","case_folding_simple.rs","general_category.rs","grapheme_cluster_break.rs","mod.rs","perl_word.rs","property_bool.rs","property_names.rs","property_values.rs","script.rs","script_extension.rs","sentence_break.rs","word_break.rs"]]],["either.rs","error.rs","lib.rs","parser.rs","unicode.rs","utf8.rs"]],\
-"scopeguard":["",[],["lib.rs"]],\
-"syn":["",[["gen",[],["clone.rs"]]],["attr.rs","bigint.rs","buffer.rs","custom_keyword.rs","custom_punctuation.rs","data.rs","derive.rs","discouraged.rs","drops.rs","error.rs","export.rs","expr.rs","ext.rs","gen_helper.rs","generics.rs","group.rs","ident.rs","lib.rs","lifetime.rs","lit.rs","lookahead.rs","mac.rs","macros.rs","meta.rs","op.rs","parse.rs","parse_macro_input.rs","parse_quote.rs","path.rs","print.rs","punctuated.rs","restriction.rs","sealed.rs","span.rs","spanned.rs","thread.rs","token.rs","ty.rs","verbatim.rs"]],\
-"thiserror":["",[],["aserror.rs","display.rs","lib.rs"]],\
-"thiserror_impl":["",[],["ast.rs","attr.rs","expand.rs","fmt.rs","generics.rs","lib.rs","prop.rs","valid.rs"]],\
-"unicode_ident":["",[],["lib.rs","tables.rs"]]\
+"minigrep":["",[["grep",[],["handler.rs","matcher.rs","str_const.rs","test.rs"]],["utils",[],["glober.rs","logger.rs","reader.rs"]]],["argparse.rs","grep.rs","lib.rs","test.rs","utils.rs"]]\
 }');
 createSourceSidebar();

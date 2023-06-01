@@ -1,1 +1,1 @@
-window.ALL_CRATES = ["aho_corasick","anyhow","argtool","cfg_if","crossbeam","crossbeam_channel","crossbeam_deque","crossbeam_epoch","crossbeam_queue","crossbeam_utils","glob","memchr","memoffset","minigrep","proc_macro2","quote","regex","regex_syntax","scopeguard","syn","thiserror","thiserror_impl","unicode_ident"];
+window.ALL_CRATES = ["argtool","minigrep"];

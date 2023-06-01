@@ -61,7 +61,8 @@ impl ThreadWorker {
                     }
                 };
                 // run
-                let out = main_loop(file_reader, &*self.my_re, print_buffer);
+                let out: std::result::Result<PrintBuffer, anyhow::Error> =
+                    main_loop(file_reader, &*self.my_re, print_buffer);
                 // send
                 self.sender.send(out).unwrap();
             }

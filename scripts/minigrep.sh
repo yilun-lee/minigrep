@@ -1,1 +1,1 @@
-target/release/minigrep "fn" "*" 
+target/release/minigrep "fn" "../*" 

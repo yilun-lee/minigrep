@@ -67,7 +67,6 @@
 <a href="#67" id="67">67</a>
 <a href="#68" id="68">68</a>
 <a href="#69" id="69">69</a>
-<a href="#70" id="70">70</a>
 </pre><pre class="rust"><code><span class="kw">use </span>anyhow::anyhow;
 <span class="kw">use </span>crossbeam::channel::Sender;
 <span class="kw">use </span>glob::glob;
@@ -103,7 +102,7 @@
         <span class="kw">let </span>entry = glob(file_pattern)<span class="question-mark">?</span>;
         <span class="kw">for </span>i <span class="kw">in </span>entry {
             <span class="kw">let </span>my_pathbuf: PathBuf = fs::canonicalize(i<span class="question-mark">?</span>)<span class="question-mark">?</span>;
-            <span class="kw">let </span>my_path = my_pathbuf.as_path();
+            <span class="kw">let </span>my_path: <span class="kw-2">&amp;</span>std::path::Path = my_pathbuf.as_path();
             <span class="kw">let </span>my_path_str: <span class="kw-2">&amp;</span>str = my_path
                 .file_name()
                 .ok_or(<span class="macro">anyhow!</span>(<span class="string">&quot;Get filename failded&quot;</span>))<span class="question-mark">?
@@ -134,7 +133,6 @@
             <span class="prelude-val">Ok</span>(v) =&gt; v,
             <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">anyhow!</span>(<span class="string">&quot;pathbuf to os string error&quot;</span>)),
         };
-
         <span class="prelude-val">Ok</span>(file_path)
     }
 }
