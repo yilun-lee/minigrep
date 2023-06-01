@@ -65,7 +65,7 @@
 <span class="kw">use </span>regex::Regex;
 
 <span class="doccomment">/// trait for different pattern match method
-</span><span class="kw">pub trait </span>PatternMatch {
+</span><span class="kw">pub trait </span>PatternMatch: Sync + Send {
     <span class="doccomment">/// if it contain the pattern
     </span><span class="kw">fn </span>contain(<span class="kw-2">&amp;</span><span class="self">self</span>, line: <span class="kw-2">&amp;</span>str) -&gt; bool;
     <span class="doccomment">/// extract the pattern

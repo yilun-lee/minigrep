@@ -12,6 +12,10 @@ use utils::reader::{FileReader, MyErrors};
 
 /// main loop for grep a file
 /// * file_reader: [FileReader](FileReader) object, read file by line.
+/// * grep_group: object with [Grep](Grep), match a line by multiple regular expression operation.
+/// * print_buffer: [PrintBuffer](PrintBuffer) object, read file and put it into buffer
+/// * -> return
+///     *  [PrintBuffer](PrintBuffer) object filled with matched line.
 pub fn main_loop(
     mut file_reader: FileReader,
     grep_group: &impl Grep,

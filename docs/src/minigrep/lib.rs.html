@@ -65,6 +65,7 @@
 <a href="#65" id="65">65</a>
 <a href="#66" id="66">66</a>
 <a href="#67" id="67">67</a>
+<a href="#68" id="68">68</a>
 </pre><pre class="rust"><code><span class="attr">#![doc = <span class="macro">include_str!</span>(<span class="string">&quot;../../README.md&quot;</span>)]
 
 </span><span class="kw">pub mod </span>argparse;
@@ -74,20 +75,24 @@
 
 <span class="kw">use </span>grep::handler::Grep;
 
-<span class="kw">use </span>utils::logger::LinePrint;
+<span class="kw">use </span>utils::logger::PrintBuffer;
 <span class="kw">use </span>utils::reader::{FileReader, MyErrors};
 
 <span class="doccomment">/// main loop for grep a file
 /// * file_reader: [FileReader](FileReader) object, read file by line.
+/// * grep_group: object with [Grep](Grep), match a line by multiple regular expression operation.
+/// * print_buffer: [PrintBuffer](PrintBuffer) object, read file and put it into buffer
+/// * -&gt; return
+///     *  [PrintBuffer](PrintBuffer) object filled with matched line.
 </span><span class="kw">pub fn </span>main_loop(
     <span class="kw-2">mut </span>file_reader: FileReader,
     grep_group: <span class="kw-2">&amp;</span><span class="kw">impl </span>Grep,
-    line_prinrer: <span class="kw">impl </span>LinePrint,
-) -&gt; <span class="prelude-ty">Result</span>&lt;(), anyhow::Error&gt; {
+    <span class="kw-2">mut </span>print_buffer: PrintBuffer,
+) -&gt; <span class="prelude-ty">Result</span>&lt;PrintBuffer, anyhow::Error&gt; {
     <span class="kw">let </span>behind_size = file_reader.behind_size;
 
     <span class="kw">let </span><span class="kw-2">mut </span>whithin_flag: bool = <span class="bool-val">false</span>;
-    <span class="kw">let </span><span class="kw-2">mut </span>line_after_match = <span class="number">0</span>;
+    <span class="kw">let </span><span class="kw-2">mut </span>line_after_match: i32 = <span class="number">0</span>;
     <span class="kw">let </span><span class="kw-2">mut </span>match_times = <span class="number">0</span>;
 
     <span class="kw">loop </span>{
@@ -95,25 +100,26 @@
         </span><span class="kw">let </span>line: <span class="kw-2">&amp;</span>str = <span class="kw">match </span>file_reader.next() {
             <span class="prelude-val">Ok</span>(v) =&gt; v,
             <span class="comment">// if my custom EOF error
-            </span><span class="prelude-val">Err</span>(err) <span class="kw">if </span>err.downcast_ref() == <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>MyErrors::EndOfFile) =&gt; <span class="kw">return </span><span class="prelude-val">Ok</span>(()),
+            </span><span class="prelude-val">Err</span>(err) <span class="kw">if </span>err.downcast_ref() == <span class="prelude-val">Some</span>(<span class="kw-2">&amp;</span>MyErrors::EndOfFile) =&gt; {
+                <span class="kw">return </span><span class="prelude-val">Ok</span>(print_buffer)
+            }
             <span class="prelude-val">Err</span>(err) =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(err),
         };
 
-        <span class="kw">let </span>(match_flag, matched_line) = <span class="kw-2">&amp;</span>grep_group.grep_one_line(line);
-        <span class="kw">if </span><span class="kw-2">*</span>match_flag {
-            <span class="kw">if </span>match_times == <span class="number">0 </span>{
-                <span class="macro">println!</span>(<span class="string">&quot;\u{1b}[32m{}\u{1b}[39m:&quot;</span>, <span class="kw-2">&amp;</span>file_reader.file_path);
+        <span class="kw">let </span>(match_flag, matched_line) = grep_group.grep_one_line(line);
+        <span class="kw">if </span>match_flag {
+            <span class="kw">if </span>match_times == <span class="number">0 </span>&amp;&amp; !print_buffer.file_path_flag {
+                print_buffer.push(
+                    <span class="macro">format!</span>(<span class="string">&quot;\u{1b}[32m{}\u{1b}[39m:&quot;</span>, <span class="kw-2">&amp;</span>file_reader.file_path),
+                    -<span class="number">1</span>,
+                );
             };
 
             <span class="kw">if </span>!whithin_flag {
-                file_reader.print_buffer(<span class="kw-2">&amp;</span>line_prinrer);
+                file_reader.print_buffer(<span class="kw-2">&amp;mut </span>print_buffer);
                 whithin_flag = <span class="bool-val">true</span>;
             }
-            line_prinrer.print(
-                matched_line,
-                file_reader.cc <span class="kw">as </span>usize,
-                <span class="kw-2">&amp;</span>file_reader.file_path,
-            );
+            print_buffer.push(matched_line, file_reader.cc);
             line_after_match = <span class="number">0</span>;
 
             match_times += <span class="number">1</span>;
@@ -123,11 +129,7 @@
             <span class="kw">if </span>line_after_match &gt; behind_size {
                 whithin_flag = <span class="bool-val">false
             </span>} <span class="kw">else if </span>whithin_flag {
-                line_prinrer.print(
-                    matched_line,
-                    file_reader.cc <span class="kw">as </span>usize,
-                    <span class="kw-2">&amp;</span>file_reader.file_path,
-                );
+                print_buffer.push(matched_line, file_reader.cc);
             }
         }
     }

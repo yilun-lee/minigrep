@@ -99,13 +99,18 @@
 <a href="#99" id="99">99</a>
 <a href="#100" id="100">100</a>
 <a href="#101" id="101">101</a>
+<a href="#102" id="102">102</a>
+<a href="#103" id="103">103</a>
+<a href="#104" id="104">104</a>
+<a href="#105" id="105">105</a>
+<a href="#106" id="106">106</a>
 </pre><pre class="rust"><code><span class="kw">use </span>anyhow::anyhow;
 <span class="kw">use </span>std::collections::LinkedList;
 <span class="kw">use </span>std::fs::File;
 <span class="kw">use </span>std::io::{<span class="self">self</span>, BufRead, BufReader, Lines};
 <span class="kw">use </span>thiserror;
 
-<span class="kw">use </span><span class="kw">super</span>::logger::LinePrint;
+<span class="kw">use </span><span class="kw">super</span>::logger::PrintBuffer;
 
 <span class="doccomment">/// My own error
 ///
@@ -183,19 +188,24 @@
             <span class="self">self</span>.buffer.pop_front();
         }
 
-        <span class="self">self</span>.line = <span class="kw">match </span><span class="self">self</span>.buf_reader.next() {
-            <span class="prelude-val">Some</span>(v) =&gt; v<span class="question-mark">?</span>,
+        <span class="kw">let </span>read_result = <span class="kw">match </span><span class="self">self</span>.buf_reader.next() {
+            <span class="prelude-val">Some</span>(v) =&gt; v,
             <span class="prelude-val">None </span>=&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">anyhow!</span>(MyErrors::EndOfFile)),
+        };
+
+        <span class="self">self</span>.line = <span class="kw">match </span>read_result {
+            <span class="prelude-val">Ok</span>(v) =&gt; v,
+            <span class="prelude-val">Err</span>(err) =&gt; <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="macro">anyhow!</span>(<span class="string">&quot;{} fialed: {}&quot;</span>, <span class="kw-2">&amp;</span><span class="self">self</span>.file_path, err)),
         };
 
         <span class="prelude-val">Ok</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.line)
     }
 
     <span class="doccomment">/// print all ahead buffer
-    </span><span class="kw">pub fn </span>print_buffer(<span class="kw-2">&amp;</span><span class="self">self</span>, line_printer: <span class="kw-2">&amp;</span><span class="kw">impl </span>LinePrint) {
+    </span><span class="kw">pub fn </span>print_buffer(<span class="kw-2">&amp;</span><span class="self">self</span>, print_buffer: <span class="kw-2">&amp;mut </span>PrintBuffer) {
         <span class="kw">let </span><span class="kw-2">mut </span>cc = <span class="self">self</span>.cc - <span class="number">1</span>;
         <span class="kw">for </span>i <span class="kw">in </span><span class="kw-2">&amp;</span><span class="self">self</span>.buffer {
-            line_printer.print(i, cc <span class="kw">as </span>usize, <span class="kw-2">&amp;</span><span class="self">self</span>.file_path);
+            print_buffer.push(i.to_string(), cc);
             cc -= <span class="number">1</span>;
         }
     }

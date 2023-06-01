@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":["LinePrinter"],"trait":["LinePrint"]};
+window.SIDEBAR_ITEMS = {"struct":["LinePrinter","PrintBuffer"],"trait":["LinePrint"]};

@@ -254,7 +254,7 @@
 
         <span class="kw">let </span><span class="kw-2">mut </span>extract_list: Vec&lt;Box&lt;<span class="kw">dyn </span>PatternMatch&gt;&gt; = <span class="macro">vec!</span>[];
         <span class="kw">for </span>i <span class="kw">in </span><span class="kw-2">&amp;</span>extract_expr {
-            <span class="kw">let </span>my_re = RegexMatcher::new(i, ignorecase)<span class="question-mark">?</span>;
+            <span class="kw">let </span>my_re: RegexMatcher = RegexMatcher::new(i, ignorecase)<span class="question-mark">?</span>;
             extract_list.push(Box::new(my_re));
         }
 

@@ -176,6 +176,15 @@
 <a href="#176" id="176">176</a>
 <a href="#177" id="177">177</a>
 <a href="#178" id="178">178</a>
+<a href="#179" id="179">179</a>
+<a href="#180" id="180">180</a>
+<a href="#181" id="181">181</a>
+<a href="#182" id="182">182</a>
+<a href="#183" id="183">183</a>
+<a href="#184" id="184">184</a>
+<a href="#185" id="185">185</a>
+<a href="#186" id="186">186</a>
+<a href="#187" id="187">187</a>
 </pre><pre class="rust"><code><span class="kw">use </span>anyhow::anyhow;
 <span class="kw">use </span>anyhow::Result;
 <span class="kw">use </span>argtool::{ArgGroup, ArgItem, ArgType};
@@ -199,6 +208,7 @@
     <span class="kw">pub </span>file_path: String,
     <span class="kw">pub </span>skip_hidden: bool,
     <span class="kw">pub </span>max_depth: usize,
+    <span class="kw">pub </span>thread_num: usize,
 }
 
 <span class="kw">impl </span>MiniGrepArg {
@@ -229,6 +239,7 @@
             file_path: my_arg_table.get_string(<span class="string">&quot;file_path&quot;</span>)<span class="question-mark">?</span>,
             skip_hidden: my_arg_table.get_bool(<span class="string">&quot;skip_hidden&quot;</span>)<span class="question-mark">?</span>,
             max_depth: my_arg_table.get_i32(<span class="string">&quot;max_depth&quot;</span>)<span class="question-mark">? </span><span class="kw">as </span>usize,
+            thread_num: my_arg_table.get_i32(<span class="string">&quot;thread_num&quot;</span>)<span class="question-mark">? </span><span class="kw">as </span>usize,
         };
 
         <span class="kw">if </span>my_arg.replace_expr.len() != my_arg.replacer.len() {
@@ -349,6 +360,13 @@
         ArgItem::new(<span class="string">&quot;max_depth&quot;</span>, <span class="string">&quot;d&quot;</span>)
             .set_detail(<span class="string">&quot;depth for os walker &quot;</span>)
             .set_default(<span class="string">&quot;10&quot;</span>, <span class="bool-val">false</span>)
+            .set_argtype(ArgType::BaseType),
+    )<span class="question-mark">?</span>;
+
+    my_arg_table.add_arg(
+        ArgItem::new(<span class="string">&quot;thread_num&quot;</span>, <span class="string">&quot;T&quot;</span>)
+            .set_detail(<span class="string">&quot;number of thread &quot;</span>)
+            .set_default(<span class="string">&quot;5&quot;</span>, <span class="bool-val">false</span>)
             .set_argtype(ArgType::BaseType),
     )<span class="question-mark">?</span>;
 

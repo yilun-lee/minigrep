@@ -59,7 +59,7 @@ impl PathGlober {
         Ok(())
     }
 
-    fn read_one_entry(&self, my_path: PathBuf) -> Result<String, anyhow::Error> {
+    fn _read_one_entry(&self, my_path: PathBuf) -> Result<String, anyhow::Error> {
         let file_path: String = match my_path.into_os_string().into_string() {
             Ok(v) => v,
             Err(_) => return Err(anyhow!("pathbuf to os string error")),
