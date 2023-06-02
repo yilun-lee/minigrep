@@ -24,7 +24,9 @@ impl PathGlober {
         path_glober.search_path(file_pattern, 0)?;
         Ok(path_glober)
     }
+}
 
+impl PathGlober {
     fn search_path(
         &mut self,
         file_pattern: &str,

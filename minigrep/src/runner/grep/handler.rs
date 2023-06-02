@@ -100,7 +100,7 @@ impl GrepGroup {
             if !target_vec.iter().any(|i: &bool| *i) {
                 return (false, line.to_owned());
             }
-            let my_str = self.paint_line(line, target_vec, false);
+            let my_str: String = self.paint_line(line, target_vec, false);
             (true, my_str)
         }
     }
