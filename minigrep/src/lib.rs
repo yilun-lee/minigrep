@@ -1,68 +1,80 @@
 #![doc = include_str!("../../README.md")]
 
 pub mod argparse;
-pub mod grep;
+pub mod runner;
 mod test;
-pub mod utils;
 
-use grep::handler::Grep;
+use std::path::PathBuf;
+use std::thread::JoinHandle;
 
-use utils::logger::PrintBuffer;
-use utils::reader::{FileReader, MyErrors};
+use anyhow::Result;
+use crossbeam::channel::unbounded;
+use crossbeam::channel::Receiver;
+pub use runner::grep::handler::GrepGroup;
+use runner::utils::glober::PathGlober;
+pub use runner::RunArg;
+use runner::ThreadWorker;
+use std::{sync::Arc, thread};
 
-/// main loop for grep a file
-/// * file_reader: [FileReader](FileReader) object, read file by line.
-/// * grep_group: object with [Grep](Grep), match a line by multiple regular expression operation.
-/// * print_buffer: [PrintBuffer](PrintBuffer) object, read file and put it into buffer
-/// * -> return
-///     *  [PrintBuffer](PrintBuffer) object filled with matched line.
-pub fn main_loop(
-    mut file_reader: FileReader,
-    grep_group: &impl Grep,
-    mut print_buffer: PrintBuffer,
-) -> Result<PrintBuffer, anyhow::Error> {
-    let behind_size = file_reader.behind_size;
+pub use runner::main_loop;
 
-    let mut whithin_flag: bool = false;
-    let mut line_after_match: i32 = 0;
-    let mut match_times = 0;
+pub fn glober_thread(
+    file_path: String,
+    skip_hidden: bool,
+    max_depth: usize,
+    thread_num: usize,
+) -> (JoinHandle<()>, Receiver<Option<PathBuf>>) {
+    let (path_sender, path_receiver) = unbounded();
+    let my_thread = thread::spawn(move || {
+        let path_sender = path_sender.clone();
+        // run glober
+        PathGlober::new(&file_path, skip_hidden, max_depth, path_sender.clone())
+            .expect("PathGlober run failed");
+        // turn off all tread after glob
+        for _ in 0..thread_num {
+            path_sender.send(None).unwrap();
+        }
+    });
+    (my_thread, path_receiver)
+}
 
-    loop {
-        // handle different error https://users.rust-lang.org/t/kind-method-not-found-when-using-anyhow-and-thiserror/81560
-        let line: &str = match file_reader.next() {
-            Ok(v) => v,
-            // if my custom EOF error
-            Err(err) if err.downcast_ref() == Some(&MyErrors::EndOfFile) => {
-                return Ok(print_buffer)
-            }
-            Err(err) => return Err(err),
+pub fn parallel_match(
+    run_arg: RunArg,
+    my_re: GrepGroup,
+    thread_num: usize,
+    path_receiver: Receiver<Option<PathBuf>>,
+) -> Result<Vec<JoinHandle<()>>> {
+    let (line_sender, line_receiver) = unbounded();
+    let my_re = Arc::new(my_re);
+    let run_arg = Arc::new(run_arg);
+
+    // run worker
+    let mut thread_vec: Vec<JoinHandle<()>> = Vec::new();
+    for _ in 0..thread_num {
+        let thread_worker = ThreadWorker {
+            my_re: my_re.clone(),
+            run_arg: run_arg.clone(),
+            reciever: path_receiver.clone(),
+            // send to log thread
+            sender: line_sender.clone(),
         };
+        thread_vec.push(thread::spawn(move || {
+            thread_worker.run();
+        }))
+    }
 
-        let (match_flag, matched_line) = grep_group.grep_one_line(line);
-        if match_flag {
-            if match_times == 0 && !print_buffer.file_path_flag {
-                print_buffer.push(
-                    format!("\u{1b}[32m{}\u{1b}[39m:", &file_reader.file_path),
-                    -1,
-                );
-            };
+    drop(line_sender);
+    drop(path_receiver);
 
-            if !whithin_flag {
-                file_reader.print_buffer(&mut print_buffer);
-                whithin_flag = true;
-            }
-            print_buffer.push(matched_line, file_reader.cc);
-            line_after_match = 0;
-
-            match_times += 1;
-        } else {
-            line_after_match += 1;
-
-            if line_after_match > behind_size {
-                whithin_flag = false
-            } else if whithin_flag {
-                print_buffer.push(matched_line, file_reader.cc);
+    // print buffer
+    for print_buffer in line_receiver {
+        match print_buffer {
+            Ok(v) => v.print_all(),
+            Err(v) => {
+                eprintln!("{}", v);
+                continue;
             }
         }
     }
+    Ok(thread_vec)
 }
