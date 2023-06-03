@@ -1,13 +1,15 @@
+use std::{
+    collections::LinkedList,
+    fs::File,
+    io::{self, BufRead, BufReader, Lines},
+};
+
 use anyhow::anyhow;
-use std::collections::LinkedList;
-use std::fs::File;
-use std::io::{self, BufRead, BufReader, Lines};
 use thiserror;
 
 use super::logger::PrintBuffer;
 
 /// My own error
-///
 #[derive(thiserror::Error, Clone, Debug, PartialEq)]
 pub enum MyErrors {
     ///
@@ -69,8 +71,8 @@ impl<'a> FileReader {
     }
 
     /// A next function for custom iterator
-    /// want to use borrow as output here so we implement Iterator instead of use std one.
-    /// (ref link)`<http://lukaskalbertodt.github.io/2018/08/03/solving-the-generalized-streaming-iterator-problem-without-gats.html#a-better-iolines>`
+    /// want to use borrow as output here so we implement Iterator instead of
+    /// use std one. (ref link)`<http://lukaskalbertodt.github.io/2018/08/03/solving-the-generalized-streaming-iterator-problem-without-gats.html#a-better-iolines>`
     pub fn next(&'a mut self) -> Result<&'a str, anyhow::Error> {
         // push the previous line
         if self.cc > 0 {

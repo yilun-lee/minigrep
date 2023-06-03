@@ -1,8 +1,7 @@
-use anyhow::anyhow;
-use anyhow::Result;
+use anyhow::{anyhow, Result};
 use minigrep::{glober_thread, parallel_match, GrepGroup, RunArg};
 
-pub trait JobMatcher {
+pub trait FileMatch {
     fn match_job(&self, file_path: String) -> Result<()>;
 }
 
@@ -14,9 +13,6 @@ pub struct MiniGrepMatcher {
     color_flag: bool,
 
     expr: Vec<String>,
-    extract_expr: Vec<String>,
-    replace_expr: Vec<String>,
-    replacer: Vec<String>,
     replace_times: usize,
     ignorecase: bool,
 
@@ -35,9 +31,6 @@ impl Default for MiniGrepMatcher {
             color_flag: true,
 
             expr: vec![],
-            extract_expr: vec![],
-            replace_expr: vec![],
-            replacer: vec![],
             replace_times: 0,
             ignorecase: true,
 
@@ -63,7 +56,7 @@ impl MiniGrepMatcher {
 // expr
 // ahead_size
 // behind_size
-impl JobMatcher for MiniGrepMatcher {
+impl FileMatch for MiniGrepMatcher {
     fn match_job(&self, file_path: String) -> Result<()> {
         // create grep
         let my_re = GrepGroup::from_re_group(

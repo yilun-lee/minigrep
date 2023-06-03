@@ -4,19 +4,12 @@ pub mod argparse;
 pub mod runner;
 mod test;
 
-use std::path::PathBuf;
-use std::thread::JoinHandle;
+use std::{path::PathBuf, sync::Arc, thread, thread::JoinHandle};
 
 use anyhow::Result;
-use crossbeam::channel::unbounded;
-use crossbeam::channel::Receiver;
-pub use runner::grep::handler::GrepGroup;
-use runner::utils::glober::PathGlober;
-pub use runner::RunArg;
-use runner::ThreadWorker;
-use std::{sync::Arc, thread};
-
-pub use runner::main_loop;
+use crossbeam::channel::{unbounded, Receiver};
+pub use runner::{grep::handler::GrepGroup, main_loop, run_single_thread, RunArg};
+use runner::{utils::glober::PathGlober, ThreadWorker};
 
 pub fn glober_thread(
     file_path: String,
@@ -25,7 +18,7 @@ pub fn glober_thread(
     thread_num: usize,
 ) -> (JoinHandle<()>, Receiver<Option<PathBuf>>) {
     let (path_sender, path_receiver) = unbounded();
-    let my_thread = thread::spawn(move || {
+    let my_thread: JoinHandle<()> = thread::spawn(move || {
         let path_sender = path_sender.clone();
         // run glober
         PathGlober::new(&file_path, skip_hidden, max_depth, path_sender.clone())

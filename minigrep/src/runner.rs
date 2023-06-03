@@ -3,26 +3,25 @@ pub mod utils;
 
 use std::{path::PathBuf, sync::Arc};
 
-use crossbeam::channel::{Receiver, Sender};
+use anyhow::{anyhow, Result};
+use crossbeam::channel::{unbounded, Receiver, Sender};
 
 use self::{
     grep::handler::{Grep, GrepGroup},
     utils::{
+        glober::PathGlober,
         logger::PrintBuffer,
         reader::{FileReader, MyErrors},
     },
 };
-use anyhow::anyhow;
-use anyhow::Result;
-use crossbeam::channel::unbounded;
-use utils::glober::PathGlober;
-
 /// main loop for grep a file
 /// * file_reader: [FileReader](FileReader) object, read file by line.
-/// * grep_group: object with [Grep](Grep), match a line by multiple regular expression operation.
-/// * print_buffer: [PrintBuffer](PrintBuffer) object, read file and put it into buffer
+/// * grep_group: object with [Grep](Grep), match a line by multiple regular
+///   expression operation.
+/// * print_buffer: [PrintBuffer](PrintBuffer) object, read file and put it into
+///   buffer
 /// * -> return
-///     *  [PrintBuffer](PrintBuffer) object filled with matched line.
+///     * [PrintBuffer](PrintBuffer) object filled with matched line.
 pub fn main_loop(
     mut file_reader: FileReader,
     grep_group: &impl Grep,
@@ -142,9 +141,9 @@ pub fn run_single_thread(
     skip_hidden: bool,
     max_depth: usize,
 ) -> Result<()> {
+    // drop after finished
     let (path_sender, path_receiver) = unbounded();
-
-    let _path_glober = PathGlober::new(file_pattern, skip_hidden, max_depth, path_sender)?;
+    PathGlober::new(file_pattern, skip_hidden, max_depth, path_sender)?;
 
     for file_path in path_receiver {
         let file_path = match file_path {
@@ -171,7 +170,13 @@ pub fn run_single_thread(
                 }
             };
         // run
-        let print_buffer = main_loop(file_reader, &my_re, print_buffer)?;
+        let print_buffer = match main_loop(file_reader, &my_re, print_buffer) {
+            Ok(v) => v,
+            Err(e) => {
+                println!("read {} error: {e}", file_path);
+                continue;
+            }
+        };
         print_buffer.print_all();
     }
     Ok(())

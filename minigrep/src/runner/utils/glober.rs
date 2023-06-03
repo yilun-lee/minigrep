@@ -1,7 +1,8 @@
+use std::{fs, path::PathBuf};
+
 use anyhow::anyhow;
 use crossbeam::channel::Sender;
 use glob::glob;
-use std::{fs, path::PathBuf};
 
 pub struct PathGlober {
     pub sender: Sender<Option<PathBuf>>,

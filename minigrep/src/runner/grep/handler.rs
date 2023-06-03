@@ -1,7 +1,11 @@
-use super::matcher::{PatternMatch, RegexMatcher};
-use super::str_const::{COLOER_RESET, RED_START};
-use anyhow::Result;
 use std::borrow::Cow;
+
+use anyhow::Result;
+
+use super::{
+    matcher::{PatternMatch, RegexMatcher},
+    str_const::{COLOER_RESET, RED_START},
+};
 
 pub trait Grep {
     fn grep_one_line(&self, line: &str) -> (bool, String);

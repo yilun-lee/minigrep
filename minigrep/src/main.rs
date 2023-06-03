@@ -9,11 +9,13 @@ mod argparse;
 
 // use lib here
 // main should access other module through lib
-use argparse::MiniGrepArg;
-use minigrep::runner::grep::handler::GrepGroup;
-use minigrep::runner::RunArg;
-use minigrep::{glober_thread, parallel_match};
 use std::env;
+
+use argparse::MiniGrepArg;
+use minigrep::{
+    glober_thread, parallel_match,
+    runner::{grep::handler::GrepGroup, run_single_thread, RunArg},
+};
 
 /// main function for arg
 fn main() {
@@ -43,21 +45,32 @@ fn main() {
         line_num_flag: my_arg.line_num_flag,
     };
 
-    // glober
-    let (glober_thread, path_receiver) = glober_thread(
-        my_arg.file_path,
-        my_arg.skip_hidden,
-        my_arg.max_depth,
-        my_arg.thread_num,
-    );
+    if my_arg.thread_num > 1 {
+        // glober
+        let (glober_thread, path_receiver) = glober_thread(
+            my_arg.file_path,
+            my_arg.skip_hidden,
+            my_arg.max_depth,
+            my_arg.thread_num,
+        );
 
-    let matcher_thread_vec =
-        parallel_match(run_arg, my_re, my_arg.thread_num, path_receiver).unwrap();
+        let matcher_thread_vec =
+            parallel_match(run_arg, my_re, my_arg.thread_num, path_receiver).unwrap();
 
-    // wait for end
-    glober_thread.join().unwrap();
-    for i in matcher_thread_vec {
-        i.join().unwrap();
+        // wait for end
+        glober_thread.join().unwrap();
+        for i in matcher_thread_vec {
+            i.join().unwrap();
+        }
+    } else {
+        run_single_thread(
+            my_re,
+            run_arg,
+            &my_arg.file_path,
+            my_arg.skip_hidden,
+            my_arg.max_depth,
+        )
+        .unwrap();
     }
 }
 

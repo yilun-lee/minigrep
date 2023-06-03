@@ -1,5 +1,4 @@
-use anyhow::anyhow;
-use anyhow::Result;
+use anyhow::{anyhow, Result};
 use argtool::{ArgGroup, ArgItem, ArgType};
 
 /// an arg struct to store argument for usage usage

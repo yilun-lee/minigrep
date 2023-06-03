@@ -1,8 +1,8 @@
-use crate::argitem::{ArgItem, ArgType, ArgValue};
-use std::collections::HashMap;
-use std::{fmt, process, vec};
+use std::{collections::HashMap, fmt, process, vec};
 
 use anyhow::anyhow;
+
+use crate::argitem::{ArgItem, ArgType, ArgValue};
 
 pub struct ArgGroup {
     pub name: String,
@@ -87,7 +87,8 @@ impl ArgGroup {
                     if &arg.len() == &0 {
                         continue;
 
-                    // For pos type argument if available -> not start with - , not coupled argument
+                    // For pos type argument if available -> not start with - ,
+                    // not coupled argument
                     } else if &arg[..1] != "-" {
                         if cc >= pos_num {
                             return Err(anyhow!(

@@ -19,12 +19,22 @@ cargo run -p minigrep -- \
 
 #  test replace 
 cargo run -p minigrep -- \
-    "fn" "/Users/sox/CODE/minigrep/minigrep/*" \
-    -n -R "\{" -r "<"  -R "\}" -r ">" -t 1
+    "fn" "/Users/sox/CODE/*" \
+    -n -R "\{" -r "<"  -R "\}" -r ">" -T 1
 
 #  test no file error 
 cargo run -p grep -- \
     "println" /Users/sox/CODE/minigrep/grdsafiosajfioep/src/main.rs 
+
+
+
+
+# pprof
+cargo run -p grepprof -- \
+    "fn" "/Users/sox/CODE/minigrep/*" \
+    -n -R "\{" -r "<"  -R "\}" -r ">" -R "\->" -r "==>" 
+
+
 
 
 

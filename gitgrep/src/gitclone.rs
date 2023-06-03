@@ -1,6 +1,6 @@
-use anyhow::anyhow;
-use anyhow::Result;
 use std::process::Command;
+
+use anyhow::{anyhow, Result};
 
 type OutErr = (String, String);
 pub trait GitClone {
@@ -15,7 +15,7 @@ pub struct GitCloner {
 impl GitCloner {
     pub fn new(args: Vec<String>) -> GitCloner {
         GitCloner {
-            args: args,
+            args,
             cmd: Command::new("git"),
         }
     }

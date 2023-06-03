@@ -1,11 +1,13 @@
 #[cfg(test)]
 mod tests {
-    use std::fs;
-    use std::path::Path;
+    use std::{fs, path::Path};
 
     // from lib
     use super::super::gitclone::{GitClone, GitCloner};
-    use super::super::mygrep::{JobMatcher, MiniGrepMatcher};
+    use super::super::{
+        mygrep::{FileMatch, MiniGrepMatcher},
+        GitGrepArg,
+    };
 
     #[test]
     fn test_match_job() {
@@ -27,5 +29,23 @@ mod tests {
         println!("err: {}", err);
         assert!(Path::new(output_path).is_dir(), "{output_path} not existed");
         fs::remove_dir_all(output_path).unwrap();
+    }
+
+    #[test]
+    fn test_clone_match() {
+        let output_path = "/Users/sox/Downloads";
+        let expr = vec!["Fn".to_string()];
+        let mut clone_matcher = GitGrepArg::new(output_path.to_string(), expr, 1, 3);
+
+        let git_url = "https://github.com/yilun-lee/minigrep.git";
+        clone_matcher.clone_match(git_url).unwrap();
+
+        let git_url = "https://github.com/yilun-lee/cocktail.git";
+        clone_matcher.clone_match(git_url).unwrap();
+
+        let git_url = "https://github.com/yilun-lee/minigrep.git";
+        clone_matcher.clone_match(git_url).unwrap();
+
+        clone_matcher.free_cache().unwrap();
     }
 }

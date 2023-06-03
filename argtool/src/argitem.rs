@@ -57,13 +57,12 @@ impl fmt::Display for ArgType {
 /// struct for one argument
 /// An example
 /// ```
-/// use argtool::{ArgItem,ArgType};
+/// use argtool::{ArgItem, ArgType};
 ///
 /// let arg = ArgItem::new("line", "n")
 ///     .set_detail("number of line")
 ///     .set_default("-1", false)
 ///     .set_argtype(ArgType::BaseType);
-///    
 /// ```
 
 pub struct ArgItem {

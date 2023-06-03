@@ -1,7 +1,9 @@
 #[cfg(test)]
 mod tests {
-    use argtool::argitem::{ArgItem, ArgType};
-    use argtool::argroup::ArgGroup;
+    use argtool::{
+        argitem::{ArgItem, ArgType},
+        argroup::ArgGroup,
+    };
 
     fn get_my_argroup() -> ArgGroup {
         let name = String::from("Test");
